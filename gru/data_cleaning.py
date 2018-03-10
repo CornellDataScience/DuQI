@@ -34,4 +34,5 @@ test = pd.read_csv("data/test.csv")
 train["question1"] = train["question1"].fillna("").apply(preprocess)
 train["question2"] = train["question2"].fillna("").apply(preprocess)
 
-#TODO: Tokenize the sentences
+#TODO: Transform back to new CSVs
+#TODO: Analyze the data, decide on best fixed sent_len, maybe cut out questions that are too long
