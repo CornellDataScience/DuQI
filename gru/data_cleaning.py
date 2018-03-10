@@ -35,4 +35,4 @@ train["question1"] = train["question1"].fillna("").apply(preprocess)
 train["question2"] = train["question2"].fillna("").apply(preprocess)
 
 #TODO: Transform back to new CSVs
-#TODO: Analyze the data, decide on best fixed sent_len, maybe cut out questions that are too long
+#TODO: Analyze the data, decide on best fixed SENT_LEN, maybe cut out questions that are too long
