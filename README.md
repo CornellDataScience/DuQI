@@ -24,9 +24,7 @@ Below is the data required to successfully train/run all of the models.
 
 In the current directory ("DuQI"), create a folder named "data" and populate it with:
 - training and test data from [Quora Question Pairs](https://www.kaggle.com/c/quora-question-pairs/data).
-- Pre-trained GloVe word vectors [(Wikipedia 2014 + Gigaword 5)](https://nlp.stanford.edu/projects/glove/)
 
 Final directory should look like:
 - data
     - Quora training/test CSV files
-    - GloVe TXT files

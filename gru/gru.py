@@ -1,6 +1,7 @@
 import keras as k
 import numpy as np
 import pandas as pd
+import gensim as gs
 
 # input tensor is (batch_size, timesteps, input_dim)
 class Model:
@@ -12,6 +13,7 @@ class Model:
     NUM_EPOCHS = 10
     BATCH_SIZE = 128
     MODEL_NAME = 'gru_v1.h5'
+    WORD2VEC_FILEPATH = '../data/word2vecmodel'
 
     def __init__(self, have_model):
 
@@ -80,17 +82,16 @@ class Model:
     def compute_accuracy(self, preds, labels):
         return labels[preds.ravel() < 0.5].mean()
 
-    def load_glove_dict(self):
-        """Returns: dictionary of Glove word embeddings
+    def create_word2vec(self, use_pretrained):
+        """Returns: word2vec model
         """
-        embeddings_index = {}
-        with open('../data/glove.6B.'+str(WORD_EMBED_SIZE)+'d.txt', encoding="utf8") as f:
-            for line in f:
-                values = line.strip().split()
-                word = values[0]
-                vec = np.asarray(values[1:], dtype="float32")
-                embeddings_index[word] = vec
-        return embeddings_index
+        if not use_pretrained:
+            #TODO: get sentences, should be iterable of lists of words per sentence
+            model = gs.models.Word2Vec(sentences, size=100, window=5, min_count=5, workers=4) #TODO: adjust parameters
+            model.save(self.WORD2VEC_FILEPATH)
+        else:
+            model = gs.models.Word2Vec.load(self.WORD2VEC_FILEPATH)
+        return model
 
 if __name__=="__main__":
     m = Model(False)

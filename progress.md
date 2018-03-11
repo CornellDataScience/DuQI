@@ -13,4 +13,4 @@ Pre-03/11 (Zhao):
 * Tentatively `SENT_LEN = 50` while excluding questions less than 4 or greater than 50 in length.
     * Added sentence length visualization and example printing to `gru/data_cleaning.py`
 * Created `GRU.md` for logging/presentation.
-* Added GloVe embeddings to `gru/gru.py`
+* Began working on Word2Vec model in `gru/gru.py`
