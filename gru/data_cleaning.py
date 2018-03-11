@@ -2,6 +2,8 @@ import re
 import numpy as np
 import pandas as pd
 from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.tokenize.stanford import StanfordTokenizer
+import matplotlib.pyplot as plt
 
 WNL = WordNetLemmatizer()
 
@@ -46,7 +48,28 @@ def save_clean_data():
     test.to_csv('../data/test_clean.csv')
     print ('Data cleaned.')
 
+def visualize_data(csvfilepath):
+    data = pd.read_csv(csvfilepath)
+    all_questions = data['question1'].append(data['question2'])
+    tokenizer = StanfordTokenizer()
+    all_tokenized = all_questions.apply(tokenizer.tokenize)
+    print(all_tokenized.shape)
+    return
+    all_lens = all_questions.str.len()
+    plt.hist(all_lens)
+    plt.show()
+
+    # # Generate a normal distribution, center at x=0 and y=5
+    # x = np.random.randn(N_points)
+    # y = .4 * x + np.random.randn(100000) + 5
+
+    # fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
+
+    # # We can set the number of bins with the `bins` kwarg
+    # axs[0].hist(x, bins=n_bins)
+    # axs[1].hist(y, bins=n_bins)
+
 if __name__=="__main__":
-    # save_clean_data()
+    visualize_data('../data/train_clean.csv')
 
 #TODO: Analyze the data, decide on best fixed SENT_LEN, maybe cut out questions that are too long
