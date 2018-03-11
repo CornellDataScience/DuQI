@@ -1,5 +1,5 @@
-kaggle-quora-dup
-----------------
+General ideas
+-------------
 
 Question preprocessing to unify aliases - see kaggle-quora-dup submission
     - To streamline model learning
@@ -7,8 +7,11 @@ Question preprocessing to unify aliases - see kaggle-quora-dup submission
 Frequent words (>100?) collected, rest considered rare, replace with "yuzhshen"
     - For better generalization, prevent overfitting to rare words
 
-Other
------
+Different forms of preprocessing
+    - kaggle-quora-dup method is fairly heavy-handed
+
+Other resources
+---------------
 
 Siamese NN example
 https://github.com/NVIDIA/keras/blob/master/examples/mnist_siamese_graph.py

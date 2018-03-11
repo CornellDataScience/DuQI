@@ -28,11 +28,25 @@ def preprocess(string): # From kaggle-quora-dup submission
     string = ' '.join([lemmatizer(w) for w in string.split()])
     return string
 
-train = pd.read_csv("data/train.csv")
-test = pd.read_csv("data/test.csv")
+def save_clean_data():
+    print('Loading training data...')
+    train = pd.read_csv("../data/train.csv")
+    print('Loading test data...')
+    test = pd.read_csv("../data/test.csv")
+    print ('Preprocessing train Q1s...')
+    train["question1"] = train["question1"].fillna("").apply(preprocess)
+    print ('Preprocessing train Q2s...')
+    train["question2"] = train["question2"].fillna("").apply(preprocess)
+    print ('Preprocessing test Q1s...')
+    test["question1"] = test["question1"].fillna("").apply(preprocess)
+    print ('Preprocessing test Q2s...')
+    test["question2"] = test["question2"].fillna("").apply(preprocess)
+    print ('Storing data in CSV format...')
+    train.to_csv('../data/train_clean.csv')
+    test.to_csv('../data/test_clean.csv')
+    print ('Data cleaned.')
 
-train["question1"] = train["question1"].fillna("").apply(preprocess)
-train["question2"] = train["question2"].fillna("").apply(preprocess)
+if __name__=="__main__":
+    # save_clean_data()
 
-#TODO: Transform back to new CSVs
 #TODO: Analyze the data, decide on best fixed SENT_LEN, maybe cut out questions that are too long
