@@ -2,7 +2,6 @@ import re
 import numpy as np
 import pandas as pd
 from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.tokenize.stanford import StanfordTokenizer
 import matplotlib.pyplot as plt
 
 WNL = WordNetLemmatizer()
@@ -51,25 +50,24 @@ def save_clean_data():
 def visualize_data(csvfilepath):
     data = pd.read_csv(csvfilepath)
     all_questions = data['question1'].append(data['question2'])
-    tokenizer = StanfordTokenizer()
-    all_tokenized = all_questions.apply(tokenizer.tokenize)
-    print(all_tokenized.shape)
-    return
-    all_lens = all_questions.str.len()
-    plt.hist(all_lens)
+    all_split = all_questions.fillna("").apply(lambda x: x.split() if isinstance(x,str) else print(x))
+    all_lens = all_split.str.len()
+    plt.hist(all_lens,bins=200)
+    plt.xlabel('Length (in words)')
+    plt.ylabel('Frequency')
     plt.show()
 
-    # # Generate a normal distribution, center at x=0 and y=5
-    # x = np.random.randn(N_points)
-    # y = .4 * x + np.random.randn(100000) + 5
-
-    # fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
-
-    # # We can set the number of bins with the `bins` kwarg
-    # axs[0].hist(x, bins=n_bins)
-    # axs[1].hist(y, bins=n_bins)
+def get_example_sents(csvfilepath,length):
+    data = pd.read_csv(csvfilepath)
+    all_questions = data['question1'].append(data['question2'])
+    all_split = all_questions.fillna("").apply(lambda x: x.split() if isinstance(x,str) else print(x))
+    all_lens = all_split.str.len()
+    all_questions = all_questions[all_lens==length]
+    chosen = np.random.choice(all_questions.index.values, 5)
+    chosen_sents = all_questions.ix[chosen]
+    for _, val in chosen_sents.iteritems():
+        print (val)
+        print()
 
 if __name__=="__main__":
-    visualize_data('../data/train_clean.csv')
-
-#TODO: Analyze the data, decide on best fixed SENT_LEN, maybe cut out questions that are too long
+    get_example_sents('../data/train_clean.csv',50)

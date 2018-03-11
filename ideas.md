@@ -9,6 +9,7 @@ Potential directions/improvements
 
 - Different forms of preprocessing
     - kaggle-quora-dup method is fairly heavy-handed
+    - potentially direct tokenization
 
 - [Attention models](https://towardsdatascience.com/convolutional-attention-model-for-natural-language-inference-a754834c0d83)
 
