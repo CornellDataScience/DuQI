@@ -1,13 +1,86 @@
-import keras
-
-VECTOR_DIM_IN = 0       # size of input vector
-VECTOR_DIM_OUT = 0      # size of output vector
-TIMESTEPS = 0           # length of unrolled network
+import keras as k
+import numpy as np
+import pandas as pd
+import gensim as gs
+#TODO: import word2vecmodel
 
 # input tensor is (batch_size, timesteps, input_dim)
-model = keras.models.Sequential()
-model.add(keras.layers.GRU(VECTOR_DIM_OUT,
-                           input_shape = (TIMESTEPS, VECTOR_DIM_IN)
-                           activation='tanh',
-                           dropout=0.0, 
-                           recurrent_dropout=0.0))
+class Model:
+
+    WORD_EMBED_SIZE = 50            # size of word embedding
+    SENT_LEN = 50                   # fixed length of sentence
+    SENT_EMBED_SIZE = 50            # size of output vector
+    TOP_WORD_THRESHOLD = 50         # words with at least this frequency are considered "top" words
+    NUM_EPOCHS = 10
+    BATCH_SIZE = 128
+    MODEL_NAME = 'gru_v1.h5'
+
+    def __init__(self, use_pretrained=True):
+
+        data = pd.read_csv('../data/') #TODO: update filepath
+        x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
+        x_train_q1 = #TODO: get Q1 features only
+        x_train_q2 = #TODO: get Q2 features only
+        x_val = #TODO: shape (testdatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
+        x_val_q1 = #TODO: get Q1 features only
+        x_val_q2 = #TODO: get Q2 features only
+        y_train = #TODO: shape (traindatasize,)
+        y_val = #TODO: shape (testdatasize,)
+
+        if use_pretrained:
+            print('Loading model...')
+            self.model = k.models.load_model('../data/'+self.MODEL_NAME)
+            print('Model loaded from data/'+self.MODEL_NAME)
+        else:
+            self.model = self.similarity_model()
+            self.model.compile(loss='mean_squared_error', optimizer='adam')
+            print('Training model...')
+            self.model.fit([x_train_q1, x_train_q2], y_train,
+                        validation_data=([x_val_q1, x_val_q2], y_val),
+                        batch_size=self.BATCH_SIZE,
+                        nb_epoch=self.NUM_EPOCHS)
+            print('Model trained.\nSaving model...')
+            self.model.save('../data/'+self.MODEL_NAME)
+            print('Model saved to data/'+self.MODEL_NAME)
+
+        pred_train = self.model.predict([x_train_q1, x_train_q2])
+        acc_train = self.compute_accuracy(pred_train, y_train)
+        print('* Accuracy on training set: %0.2f%%' % (100 * acc_train))
+
+        pred_val = self.model.predict([x_val_q1, x_val_q2])
+        acc_val = self.compute_accuracy(pred_val, y_val)
+        print('* Accuracy on validation set: %0.2f%%' % (100 * acc_val))
+
+    def gru_embedding(self):
+        """Returns: GRU model for sentence embedding, applied to each question input.
+        """
+        gru = k.layers.GRU(self.SENT_EMBED_SIZE,
+                            input_shape = (self.SENT_LEN,self.WORD_EMBED_SIZE),
+                            activation='relu', #TODO: test tanh
+                            dropout=0.0) #TODO: test 0.2
+        return gru
+
+    def eucl_dist(self, vects):
+        x, y = vects
+        return k.backend.sqrt(k.backend.sum(k.backend.square(x - y), axis=1, keepdims=True))
+
+    def eucl_dist_shape(self, shapes):
+        shape1, _ = shapes
+        return (shape1[0], 1)
+
+    def similarity_model(self):
+        """Returns: Full similarity model between two sentences, based on Euclidean distance.
+        """
+        input1 = k.layers.Input(shape=(self.SENT_LEN,self.WORD_EMBED_SIZE))
+        input2 = k.layers.Input(shape=(self.SENT_LEN,self.WORD_EMBED_SIZE))
+        gru1_out = self.gru_embedding()(input1)
+        gru2_out = self.gru_embedding()(input2)
+        distance = k.layers.Lambda(self.eucl_dist, output_shape=self.eucl_dist_shape)([gru1_out,gru2_out])
+        model = k.models.Model(inputs=[input1, input2], outputs=[distance])
+        return model
+
+    def compute_accuracy(self, preds, labels):
+        return labels[preds.ravel() < 0.5].mean()
+
+if __name__=="__main__":
+    m = Model(False)
