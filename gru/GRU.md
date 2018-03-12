@@ -1,4 +1,8 @@
-# GRU
+# Data Exploration
+
+![hist](https://github.com/CornellDataScience/DuQI/raw/master/images/gru_questions_clean_hist.png)
+
+![zoomed](https://github.com/CornellDataScience/DuQI/raw/master/images/gru_questions_clean_hist_zoom.png)
 
 * Processed sentences:
     * Length 1 - no
@@ -31,7 +35,13 @@
         base on biology or chemistry or should i have to continue in the same field mechanical
         engineer"
 
+# GRU
+
+![Intro](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png)
+
+![Model](https://github.com/CornellDataScience/DuQI/raw/master/images/gru_model.png)
+
 * Challenges:
-    * Out-of-vocabulary words in test data
     * Unknown words in training data
         * We could assign embeddings to every single word, but don't want to overfit
+        * Train model on data with infrequent as UNK, preprocess test data prior to running model
