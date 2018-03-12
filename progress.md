@@ -14,3 +14,7 @@ Pre-03/11 (Zhao):
     * Added sentence length visualization and example printing to `gru/data_cleaning.py`
 * Created `GRU.md` for logging/presentation.
 * Began working on Word2Vec model in `gru/gru.py`
+
+03/12 (Zhao):
+* Migrated Word2Vec to `word2vecmodel.py`
+    * Trained 50D, 100D models from training data located in `models/`

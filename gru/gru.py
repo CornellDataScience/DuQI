@@ -2,6 +2,7 @@ import keras as k
 import numpy as np
 import pandas as pd
 import gensim as gs
+#TODO: import word2vecmodel
 
 # input tensor is (batch_size, timesteps, input_dim)
 class Model:
@@ -13,11 +14,10 @@ class Model:
     NUM_EPOCHS = 10
     BATCH_SIZE = 128
     MODEL_NAME = 'gru_v1.h5'
-    WORD2VEC_FILEPATH = '../data/word2vecmodel'
 
-    def __init__(self, have_model):
+    def __init__(self, use_pretrained=True):
 
-        data = pd.read_csv('../data/')
+        data = pd.read_csv('../data/') #TODO: update filepath
         x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
         x_train_q1 = #TODO: get Q1 features only
         x_train_q2 = #TODO: get Q2 features only
@@ -27,7 +27,7 @@ class Model:
         y_train = #TODO: shape (traindatasize,)
         y_val = #TODO: shape (testdatasize,)
 
-        if have_model:
+        if use_pretrained:
             print('Loading model...')
             self.model = k.models.load_model('../data/'+self.MODEL_NAME)
             print('Model loaded from data/'+self.MODEL_NAME)
@@ -81,17 +81,6 @@ class Model:
 
     def compute_accuracy(self, preds, labels):
         return labels[preds.ravel() < 0.5].mean()
-
-    def create_word2vec(self, use_pretrained):
-        """Returns: word2vec model
-        """
-        if not use_pretrained:
-            #TODO: get sentences, should be iterable of lists of words per sentence
-            model = gs.models.Word2Vec(sentences, size=100, window=5, min_count=5, workers=4) #TODO: adjust parameters
-            model.save(self.WORD2VEC_FILEPATH)
-        else:
-            model = gs.models.Word2Vec.load(self.WORD2VEC_FILEPATH)
-        return model
 
 if __name__=="__main__":
     m = Model(False)

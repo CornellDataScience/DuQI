@@ -30,3 +30,8 @@
         own degree due to some personal problem am i leave with any option regard further study
         base on biology or chemistry or should i have to continue in the same field mechanical
         engineer"
+
+* Challenges:
+    * Out-of-vocabulary words in test data
+    * Unknown words in training data
+        * We could assign embeddings to every single word, but don't want to overfit

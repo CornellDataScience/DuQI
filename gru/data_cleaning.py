@@ -30,9 +30,7 @@ def preprocess(string): # From kaggle-quora-dup submission
     return string
 
 def save_clean_data():
-    print('Loading training data...')
     train = pd.read_csv("../data/train.csv")
-    print('Loading test data...')
     test = pd.read_csv("../data/test.csv")
     print ('Preprocessing train Q1s...')
     train["question1"] = train["question1"].fillna("").apply(preprocess)
