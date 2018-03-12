@@ -35,3 +35,5 @@
     * Out-of-vocabulary words in test data
     * Unknown words in training data
         * We could assign embeddings to every single word, but don't want to overfit
+
+![Model](https://github.com/CornellDataScience/DuQI/images/gru_model.png "img"
