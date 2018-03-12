@@ -18,3 +18,12 @@ Pre-03/11 (Zhao):
 03/12 (Zhao):
 * Migrated Word2Vec to `word2vecmodel.py`
     * Trained 50D, 100D models from training data located in `models/`
+  
+03/12 (Arnav):
+* Generated Naive Bayes Model
+  * Features: Jaccard Similarity, Dissimilar word POS overlap
+  * Precision: 0.608
+  * Intention:
+           * Non-overlapping content words --> more likely to be non-duplicates
+  * Evaluation:
+           * Guided by Jacc. Similarity
