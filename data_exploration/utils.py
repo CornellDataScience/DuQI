@@ -5,25 +5,37 @@ import spacy
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 import timeit
+import textacy
 
 #COLUMN NAMES
-QUESTION_1 = "question1"
-QUESTION_2 = "question2"
-IS_DUP = "is_duplicate"
+QUESTION_1 	= "question1"
+QUESTION_2 	= "question2"
+IS_DUP 		= "is_duplicate"
 WORDS_NOT_IN_Q1 = "words_not_in_q1"
 WORDS_NOT_IN_Q2 = "words_not_in_q2"
-POS_NOT_IN_Q1 = "pos_not_in_q1"
-POS_NOT_IN_Q2 = "pos_not_in_q2"
+POS_NOT_IN_Q1 	= "pos_not_in_q1"
+POS_NOT_IN_Q2 	= "pos_not_in_q2"
 
 #CONSTANTS
 STOPWORDS = set(stopwords.words('english'))
 PUNC_TABLE = str.maketrans("","",".,?")
 LANG_MODEL = spacy.load("en_core_web_sm")
 
+def normalize_text(text):
+	text = textacy.preprocess.normalize_whitespace(textacy.preprocess.transliterate_unicode(str(text)))
+	return textacy.preprocess_text(text, fix_unicode=False, lowercase=False, transliterate=False,
+        							no_urls=True, no_emails=True, no_phone_numbers=True,
+        							no_numbers=False, no_currency_symbols=True, no_punct=False,
+        							no_contractions=True, no_accents=True)
+
 """
 """
-def readData(fileName):
-	return pd.read_csv(fileName)
+def readData(fileName, normalize = False):
+	df = pd.read_csv(fileName)
+	if not normalize:
+		df[QUESTION_1] = df[QUESTION_1].apply(lambda x : normalize_text(x))
+		df[QUESTION_2] = df[QUESTION_2].apply(lambda x : normalize_text(x))
+	return df
 
 def appendUnsharedWords(questionFrame):
 	start_time = timeit.default_timer()
@@ -43,7 +55,7 @@ def appendUnSharedPOS(questionFrame):
 	start_time = timeit.default_timer()
 	newFrame = questionFrame.copy(deep =  True)
 	newFrame[POS_NOT_IN_Q1] = newFrame.apply(lambda x : sentencePOS(x[WORDS_NOT_IN_Q1]) , axis = 1)
-	#newFrame[POS_NOT_IN_Q2] = newFrame.apply(lambda x : sentencePOS(x[WORDS_NOT_IN_Q2]) , axis = 1)
+	newFrame[POS_NOT_IN_Q2] = newFrame.apply(lambda x : sentencePOS(x[WORDS_NOT_IN_Q2]) , axis = 1)
 	print(timeit.default_timer() - start_time)
 	return newFrame
 
@@ -97,7 +109,7 @@ def createDataMatrix(dataFrame, addCols = True, semToIndices = None):
 				xMatrix = np.hstack((xMatrix, np.zeros((len(dataFrame), 1))))
 			
 			try:
-				xMatrix[index, semToIndices[tag]] = np.abs(xMatrix[index, semToIndices[tag]] - 1)
+				xMatrix[index, semToIndices[tag]] = np.abs(xMatrix[index, semToIndices[tag]] + 1)
 			except:
 				pass
 		
@@ -107,6 +119,22 @@ def createBayesClassifier(dataMatrix, y, dupRatio):
 	clf = MultinomialNB(class_prior = [1 - dupRatio, dupRatio])
 	clf.fit(dataMatrix, y)
 	return clf
+
+
+#jaccard similarity
+#best relation is with single jaccard, have better histogram
+
+#naive bayes
+#features include jaccard, use of POS
+#IDEA
+#- usuallly stuff like nouns, you have non-duplicates
+#- people have different ways of saying a sentence but that usually
+#involves non - content words
+#but obviously doesn't take into account the structure or the exact meaning of words
+#doesn't assign POS based on location in the sentence which technically affects the
+#POS accuracy
+
+
 
 
 
