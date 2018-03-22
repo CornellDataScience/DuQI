@@ -20,6 +20,7 @@ Pre-03/11 (Zhao):
     * Trained 50D, 100D models from training data located in `models/`
   
 03/12 (Arnav):
+* Added Pre-Processed Questions (via textacy)
 * Generated Naive Bayes Model
   * Features: Jaccard Similarity, Dissimilar word POS overlap
   * Precision: 0.608
