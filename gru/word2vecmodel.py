@@ -3,7 +3,6 @@ import pandas as pd
 import gensim as gs
 
 class Word2VecModel:
-
     
     EMBEDDING_SIZE = 100
     WORD2VEC_FILEPATH = '../models/word2vecmodel-'+str(EMBEDDING_SIZE)+'d'
