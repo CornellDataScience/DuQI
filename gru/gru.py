@@ -2,30 +2,63 @@ import keras as k
 import numpy as np
 import pandas as pd
 import gensim as gs
-#TODO: import word2vecmodel
+from word2vecmodel import Word2VecModel
 
 # input tensor is (batch_size, timesteps, input_dim)
 class Model:
 
-    WORD_EMBED_SIZE = 50            # size of word embedding
+    WORD_EMBED_SIZE = 100           # size of word embedding
     SENT_LEN = 50                   # fixed length of sentence
-    SENT_EMBED_SIZE = 50            # size of output vector
+    SENT_EMBED_SIZE = 100           # size of output vector
     TOP_WORD_THRESHOLD = 50         # words with at least this frequency are considered "top" words
+    SENT_INCLUSION_MIN = 3          # any sentence of lesser length will be removed from the data
+    SENT_INCLUSION_MAX = SENT_LEN   # any sentence of greater length will be removed from the data
     NUM_EPOCHS = 10
     BATCH_SIZE = 128
     MODEL_NAME = 'gru_v1.h5'
 
     def __init__(self, use_pretrained=True):
 
-        data = pd.read_csv('../data/') #TODO: update filepath
-        x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
-        x_train_q1 = #TODO: get Q1 features only
-        x_train_q2 = #TODO: get Q2 features only
-        x_val = #TODO: shape (testdatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
-        x_val_q1 = #TODO: get Q1 features only
-        x_val_q2 = #TODO: get Q2 features only
-        y_train = #TODO: shape (traindatasize,)
-        y_val = #TODO: shape (testdatasize,)
+        # TODO: separate data stuff to separate function
+        data = pd.read_csv('../data/train_clean.csv')
+        # splitting sentence strings
+        data['question1'] = data['question1'].str.split()
+        data['question2'] = data['question2'].str.split()
+        # removing floats (NaN?)
+        data = data.drop(data[data['question1'].apply(type)==float].index)  
+        data = data.drop(data[data['question2'].apply(type)==float].index)
+        # removing sentences that are too short/long
+        data = data.drop(data[data['question1'].apply(len)>self.SENT_INCLUSION_MAX].index)
+        data = data.drop(data[data['question1'].apply(len)<self.SENT_INCLUSION_MIN].index)
+        data = data.drop(data[data['question2'].apply(len)>self.SENT_INCLUSION_MAX].index)
+        data = data.drop(data[data['question2'].apply(len)<self.SENT_INCLUSION_MIN].index)
+        shuffled_data = data.sample(frac=1,random_state=2727)
+
+        q1_split = shuffled_data['question1']
+        q1_pad = self.SENT_LEN-q1_split.apply(len)  # computing padding
+        q1_split = q1_split.apply(np.asarray)       # entries are split ndarrays
+
+        # turn each word into word vector from word2vec
+        w2vmodel = Word2VecModel()
+        
+
+        #TODO: Finish data processing
+        # the numpy array embedding for a word is w2vmodel.wv['someword']
+
+        return
+
+
+        y_data = shuffled_data['is_duplicate'].values    # ndarray (n,)
+        
+
+        # x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
+        # x_train_q1 = #TODO: get Q1 features only
+        # x_train_q2 = #TODO: get Q2 features only
+        # y_train = #TODO: shape (traindatasize,)
+        # x_val = #TODO: shape (valdatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
+        # x_val_q1 = #TODO: get Q1 features only
+        # x_val_q2 = #TODO: get Q2 features only
+        # y_val = #TODO: shape (valdatasize,)
 
         if use_pretrained:
             print('Loading model...')

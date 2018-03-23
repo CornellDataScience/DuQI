@@ -11,6 +11,8 @@ Potential directions/improvements
     - kaggle-quora-dup method is fairly heavy-handed
     - potentially direct tokenization
 
+- Remove questions with numbers? May overfit to numerical questions.
+
 - [Attention models](https://towardsdatascience.com/convolutional-attention-model-for-natural-language-inference-a754834c0d83)
 
 Other resources
