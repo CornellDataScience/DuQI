@@ -34,23 +34,29 @@ class Model:
         data = data.drop(data[data['question2'].apply(len)<self.SENT_INCLUSION_MIN].index)
         shuffled_data = data.sample(frac=1,random_state=2727)
 
+        self.w2v = Word2VecModel()
+
         q1_split = shuffled_data['question1']
-        q1_pad = self.SENT_LEN-q1_split.apply(len)  # computing padding
-        q1_split = q1_split.apply(np.asarray)       # entries are split ndarrays
+        # padding front of questions
+        pad_front = lambda lst: ['!EMPTY!']*(self.WORD_EMBED_SIZE-len(lst))+lst
+        q1_split = q1_split.apply(pad_front)
+        q1_split = q1_split.apply(np.asarray)
 
-        # turn each word into word vector from word2vec
-        w2vmodel = Word2VecModel()
+        q1_vectors = q1_split.apply(self.words_to_embeds)
         
-
+        
+        #TODO #TODO #TODO: finish self.words_to_embeds
+        print(q1_vectors)
+        # words_to_embeds = np.vectorize(word_to_embed)
+        # q1_vectors = q1_split.apply(words_to_embeds)
+        # print (q1_vectors)
         #TODO: Finish data processing
         # the numpy array embedding for a word is w2vmodel.wv['someword']
 
         return
-
-
+        
         y_data = shuffled_data['is_duplicate'].values    # ndarray (n,)
         
-
         # x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
         # x_train_q1 = #TODO: get Q1 features only
         # x_train_q2 = #TODO: get Q2 features only
@@ -83,6 +89,17 @@ class Model:
         pred_val = self.model.predict([x_val_q1, x_val_q2])
         acc_val = self.compute_accuracy(pred_val, y_val)
         print('* Accuracy on validation set: %0.2f%%' % (100 * acc_val))
+
+    def words_to_embeds(self, words_array):
+            """Returns: vector that is flattened SENT_LEN x WORD_EMBED_SIZE matrix
+            """
+            words_series = pd.Series(data=words_array)
+            zero_embed = np.array([0]*self.WORD_EMBED_SIZE,dtype='float32')
+            word_to_embed = lambda word: zero_embed.copy() if word=='!EMPTY!' else pd.Series(data=self.w2v.model.wv[word])
+            split_embeds = words_series.apply(word_to_embed)    # dataframe
+            flattened = split_embeds.values.flatten()
+
+            return flattened
 
     def gru_embedding(self):
         """Returns: GRU model for sentence embedding, applied to each question input.
