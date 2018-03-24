@@ -13,6 +13,8 @@ Potential directions/improvements
 
 - Remove questions with numbers? May overfit to numerical questions.
 
+- Train Word2Vec model on only the included questions
+
 - [Attention models](https://towardsdatascience.com/convolutional-attention-model-for-natural-language-inference-a754834c0d83)
 
 Other resources

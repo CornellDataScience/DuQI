@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from nltk.stem.wordnet import WordNetLemmatizer
 import matplotlib.pyplot as plt
+import constants as c
 
 WNL = WordNetLemmatizer()
 
@@ -66,6 +67,20 @@ def get_example_sents(csvfilepath,length):
     for _, val in chosen_sents.iteritems():
         print (val)
         print()
+
+def split_and_exclude(data):
+    # splitting sentence strings
+    data['question1'] = data['question1'].str.split()
+    data['question2'] = data['question2'].str.split()
+    # removing floats (NaN?)
+    data = data.drop(data[data['question1'].apply(type)==float].index)  
+    data = data.drop(data[data['question2'].apply(type)==float].index)
+    # removing sentences that are too short/long
+    data = data.drop(data[data['question1'].apply(len)>c.SENT_INCLUSION_MAX].index)
+    data = data.drop(data[data['question1'].apply(len)<c.SENT_INCLUSION_MIN].index)
+    data = data.drop(data[data['question2'].apply(len)>c.SENT_INCLUSION_MAX].index)
+    data = data.drop(data[data['question2'].apply(len)<c.SENT_INCLUSION_MIN].index)
+    return data
 
 if __name__=="__main__":
     get_example_sents('../data/train_clean.csv',50)
