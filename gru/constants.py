@@ -11,5 +11,4 @@ UNKNOWN_MIN_COUNT = 50          # min frequency of words that get trained for w2
 MIN_COUNT = 100                 # min frequency of words that don't count as !UNK!
 NUM_EPOCHS = 10
 BATCH_SIZE = 128
-MODEL_NAME = 'gru_v2.h5'        # pretrained model file to load weights from
 WORD2VEC_FILEPATH = '../lang_models/word2vecmodel-'+str(WORD_EMBED_SIZE)+'d'

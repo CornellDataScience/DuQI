@@ -1,8 +1,9 @@
 import re
 import numpy as np
 import pandas as pd
-from nltk.stem.wordnet import WordNetLemmatizer
 import matplotlib.pyplot as plt
+from nltk.stem.wordnet import WordNetLemmatizer
+
 import constants as c
 
 WNL = WordNetLemmatizer()
@@ -87,6 +88,14 @@ def exclude_sents(data):
     data['question1'] = data['question1'].apply(' '.join)
     data['question2'] = data['question2'].apply(' '.join)
     return data
+
+def train_val_split(data):
+    shuffled_data = data.sample(n=len(data),random_state=27)
+    val_size = 0.2
+    val_denom = int(1/val_size)
+    train_data = shuffled_data[len(shuffled_data)//val_denom+1:]
+    val_data = shuffled_data[:len(shuffled_data)//val_denom+1]
+    return train_data, val_data
 
 if __name__=="__main__":
     get_example_sents('../data/train_clean.csv',50)

@@ -1,15 +1,17 @@
 import numpy as np
 import pandas as pd
 import gensim as gs
-from preprocessing import exclude_sents
+
 import constants as c
+from preprocessing import exclude_sents, train_val_split
 
 class Word2VecModel:
 
-    def __init__(self,use_pretrained=True):
+    def __init__(self,*,use_pretrained=True):
         if not use_pretrained:
-            train = pd.read_csv("../data/train_clean.csv")
-            train = exclude_sents(train)
+            data = pd.read_csv("../data/train_clean.csv")
+            data = exclude_sents(data)
+            train, _ = train_val_split(data)
             all_questions = train['question1'].append(train['question2'])
             sentences = all_questions.fillna('').apply(lambda x: x.split())
             print('Training model...')
@@ -25,4 +27,4 @@ class Word2VecModel:
             self.model = gs.models.Word2Vec.load(c.WORD2VEC_FILEPATH)
 
 if __name__=='__main__':
-    m = Word2VecModel(False)
+    m = Word2VecModel(use_pretrained=False)
