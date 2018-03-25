@@ -14,8 +14,8 @@ def lemmatizer(word):
         return word
     return WNL.lemmatize(WNL.lemmatize(word, "n"), "v")
 
-def preprocess(string): # From kaggle-quora-dup submission
-    """Pipeline: string -> processed -> lemmatized -> output
+def clean_string(string): # From kaggle-quora-dup submission
+    """Returns: cleaned string, with common token replacements and lemmatization
     """
     string = string.lower().replace(",000,000", "m").replace(",000", "k").replace("′", "'").replace("’", "'") \
         .replace("won't", "will not").replace("cannot", "can not").replace("can't", "can not") \
@@ -31,16 +31,18 @@ def preprocess(string): # From kaggle-quora-dup submission
     return string
 
 def save_clean_data():
+    """Saves clean data to file.
+    """
     train = pd.read_csv("../data/train.csv")
     test = pd.read_csv("../data/test.csv")
     print ('Preprocessing train Q1s...')
-    train["question1"] = train["question1"].fillna("").apply(preprocess)
+    train["question1"] = train["question1"].fillna("").apply(clean_string)
     print ('Preprocessing train Q2s...')
-    train["question2"] = train["question2"].fillna("").apply(preprocess)
+    train["question2"] = train["question2"].fillna("").apply(clean_string)
     print ('Preprocessing test Q1s...')
-    test["question1"] = test["question1"].fillna("").apply(preprocess)
+    test["question1"] = test["question1"].fillna("").apply(clean_string)
     print ('Preprocessing test Q2s...')
-    test["question2"] = test["question2"].fillna("").apply(preprocess)
+    test["question2"] = test["question2"].fillna("").apply(clean_string)
     print ('Storing data in CSV format...')
     train.to_csv('../data/train_clean.csv')
     test.to_csv('../data/test_clean.csv')
@@ -68,7 +70,9 @@ def get_example_sents(csvfilepath,length):
         print (val)
         print()
 
-def split_and_exclude(data):
+def exclude_sents(data):
+    """Returns: Data with pairs including high length and low length questions dropped.
+    """
     # splitting sentence strings
     data['question1'] = data['question1'].str.split()
     data['question2'] = data['question2'].str.split()
@@ -80,6 +84,8 @@ def split_and_exclude(data):
     data = data.drop(data[data['question1'].apply(len)<c.SENT_INCLUSION_MIN].index)
     data = data.drop(data[data['question2'].apply(len)>c.SENT_INCLUSION_MAX].index)
     data = data.drop(data[data['question2'].apply(len)<c.SENT_INCLUSION_MIN].index)
+    data['question1'] = data['question1'].apply(' '.join)
+    data['question2'] = data['question2'].apply(' '.join)
     return data
 
 if __name__=="__main__":

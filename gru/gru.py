@@ -1,76 +1,68 @@
+# packages
 import keras as k
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pandas as pd
 import gensim as gs
+from sklearn.model_selection import train_test_split
+# files
 from word2vecmodel import Word2VecModel
-from data_cleaning import split_and_exclude
+from preprocessing import exclude_sents
 import constants as c
 
-# input tensor is (batch_size, timesteps, input_dim)
-class Model:
+#TODO: Don't train tokenizer on validation data
 
+class Model:
     def __init__(self, use_pretrained=True):
         data = pd.read_csv('../data/train_clean.csv')
-        data = split_and_exclude(data)
-        shuffled_data = data.sample(frac=1,random_state=2727)
+        # dropping low-length and high-length sentences
+        data = exclude_sents(data)
+        # pd.Series to ndarray
+        q1_strings = data['question1'].values
+        q2_strings = data['question2'].values
+
+        print('Fitting tokenizer...')
+        self.tokenizer = Tokenizer(filters="")
+        self.tokenizer.fit_on_texts(np.append(q1_strings, q2_strings))
         self.w2v = Word2VecModel()
-        self.unk_embed = self.produce_unk_embed()
-
-        #TODO #TODO #TODO: Train with full code (unrestricted datasets)
-        # q_vectors_list = [None,None]
-        # for question_num in [1,2]:
-        #     q_split = shuffled_data['question'+str(question_num)]
-        #     # padding front of questions
-        #     pad_front = lambda lst: ['!EMPTY!']*(c.WORD_EMBED_SIZE-len(lst))+lst
-        #     q_split = q_split.apply(pad_front)
-        #     q_split = q_split.apply(np.asarray)
-        #     self.iters_count = 0
-        #     q_vectors = q_split.apply(self.words_to_embeds)
-        #     q_vectors_list[question_num-1] = q_vectors
-        #
-        # y_data = shuffled_data['is_duplicate']
-
-        q_vectors_list = [None,None]
-        for question_num in [1,2]:
-            q_split = shuffled_data['question'+str(question_num)].head(n=1000)
-            # padding front of questions
-            pad_front = lambda lst: ['!EMPTY!']*(c.SENT_LEN-len(lst))+lst
-            q_split = q_split.apply(pad_front)
-            q_split = q_split.apply(np.asarray)
-            self.iters_count = 0
-            q_vectors = q_split.apply(self.words_to_embeds)
-            q_vectors_list[question_num-1] = q_vectors
+        unk_embed = self.produce_unk_embed()
         
-        y_data = shuffled_data['is_duplicate'].head(n=1000)
-        print(q_vectors_list[0].iloc[0].shape) # (1250,) because 25-dim, 50 words
+        print('Converting strings to int arrays...')
+        q1_intarr = pad_sequences(self.tokenizer.texts_to_sequences(q1_strings), maxlen=c.SENT_LEN)
+        q2_intarr = pad_sequences(self.tokenizer.texts_to_sequences(q2_strings), maxlen=c.SENT_LEN)
+        labels_arr = np.array(data["is_duplicate"])
+        # train-val shuffle and split
+        x_train_q1, x_val_q1, x_train_q2, x_val_q2, y_train, y_val = \
+            train_test_split(q1_intarr, q2_intarr, labels_arr, test_size=0.2, random_state=27)
+        num_words = len(self.tokenizer.word_index)+1
 
-        return
-        
-        # x_train = #TODO: shape (traindatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
-        # x_train_q1 = #TODO: get Q1 features only
-        # x_train_q2 = #TODO: get Q2 features only
-        # y_train = #TODO: shape (traindatasize,)
-        # x_val = #TODO: shape (valdatasize,WORD_EMBED_SIZE,SENT_LEN)x2 for two questions?
-        # x_val_q1 = #TODO: get Q1 features only
-        # x_val_q2 = #TODO: get Q2 features only
-        # y_val = #TODO: shape (valdatasize,)
+        print('Creating embeddings matrix...')
+        self.embedding_matrix = np.zeros((num_words, c.WORD_EMBED_SIZE))
+        for word, i in self.tokenizer.word_index.items():
+            try:
+                embedding_vector = self.w2v.model.wv[word]
+            except KeyError:
+                embedding_vector = unk_embed
+            self.embedding_matrix[i] = embedding_vector
 
         if use_pretrained:
             print('Loading model...')
-            self.model = k.models.load_model('../data/'+c.MODEL_NAME)
-            print('Model loaded from data/'+c.MODEL_NAME)
+            self.model = k.models.load_model('../models/'+c.MODEL_NAME)
+            print('Model loaded from models/'+c.MODEL_NAME)
         else:
+            print('Training model...')
             self.model = self.similarity_model()
             self.model.compile(loss='mean_squared_error', optimizer='adam')
             print('Training model...')
             self.model.fit([x_train_q1, x_train_q2], y_train,
                         validation_data=([x_val_q1, x_val_q2], y_val),
                         batch_size=c.BATCH_SIZE,
-                        nb_epoch=c.NUM_EPOCHS)
+                        epochs=c.NUM_EPOCHS)
             print('Model trained.\nSaving model...')
-            self.model.save('../data/'+c.MODEL_NAME)
-            print('Model saved to data/'+c.MODEL_NAME)
-
+            self.model.save('../models/'+c.MODEL_NAME)
+            print('Model saved to models/'+c.MODEL_NAME)
+        # predictions
         pred_train = self.model.predict([x_train_q1, x_train_q2])
         acc_train = self.compute_accuracy(pred_train, y_train)
         print('* Accuracy on training set: %0.2f%%' % (100 * acc_train))
@@ -91,33 +83,20 @@ class Model:
         unknown_embedding = unknown_embedding/unknown_count
         return unknown_embedding
 
-    def word_to_embed(self, word):
-        if word=='!EMPTY!':
-            return pd.Series(data=[0]*c.WORD_EMBED_SIZE,dtype='float32')
-        else:
-            try:
-                return pd.Series(data=self.w2v.model.wv[word],dtype='float32')
-            except KeyError:
-                return pd.Series(data=self.unk_embed,dtype='float32')
-
-    def words_to_embeds(self, words_array):
-            """Returns: vector that is flattened SENT_LEN x WORD_EMBED_SIZE matrix
-            """
-            words_series = pd.Series(data=words_array)
-            split_embeds = words_series.apply(self.word_to_embed)    # dataframe
-            flattened = split_embeds.values.flatten()
-            self.iters_count+=1
-            if self.iters_count%1000 == 0:
-                print('Questions processed: '+str(self.iters_count))
-            return flattened
-
     def gru_embedding(self):
         """Returns: GRU model for sentence embedding, applied to each question input.
-        """
-        gru = k.layers.GRU(c.SENT_EMBED_SIZE,
-                            input_shape = (c.SENT_LEN,c.WORD_EMBED_SIZE),
-                            activation='relu', #TODO: test tanh
-                            dropout=0.0) #TODO: test 0.2
+        """        
+        gru = k.models.Sequential()
+        num_words = len(self.tokenizer.word_index.items())
+        embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
+        # the model will take as input an integer matrix of size (batch, input_length).
+        gru.add(k.layers.Embedding(num_words,
+                                   c.WORD_EMBED_SIZE,
+                                   embeddings_initializer=embed_matrix_init,
+                                   input_length=c.SENT_LEN))
+        # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
+        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
+                             activation='relu', #TODO: test tanh
         return gru
 
     def eucl_dist(self, vects):
@@ -129,18 +108,20 @@ class Model:
         return (shape1[0], 1)
 
     def similarity_model(self):
-        """Returns: Full similarity model between two sentences, based on Euclidean distance.
+        """Returns: Full similarity model between two sentences
         """
-        input1 = k.layers.Input(shape=(c.SENT_LEN,c.WORD_EMBED_SIZE))
-        input2 = k.layers.Input(shape=(c.SENT_LEN,c.WORD_EMBED_SIZE))
+        input1 = k.layers.Input(shape=(c.SENT_LEN,))
+        input2 = k.layers.Input(shape=(c.SENT_LEN,))
         gru1_out = self.gru_embedding()(input1)
         gru2_out = self.gru_embedding()(input2)
-        distance = k.layers.Lambda(self.eucl_dist, output_shape=self.eucl_dist_shape)([gru1_out,gru2_out])
-        model = k.models.Model(inputs=[input1, input2], outputs=[distance])
+        distance = k.layers.Lambda(self.eucl_dist,
+                                   output_shape=self.eucl_dist_shape)([gru1_out,gru2_out])
+        out = k.layers.Dense(1, activation="sigmoid")(distance)
+        model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
     def compute_accuracy(self, preds, labels):
-        return labels[preds.ravel() < 0.5].mean()
+        return labels[preds.ravel() >= 0.5].mean()
 
 if __name__=="__main__":
     m = Model(False)

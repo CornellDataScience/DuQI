@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import gensim as gs
-from data_cleaning import split_and_exclude
+from preprocessing import exclude_sents
 import constants as c
 
 class Word2VecModel:
@@ -9,10 +9,7 @@ class Word2VecModel:
     def __init__(self,use_pretrained=True):
         if not use_pretrained:
             train = pd.read_csv("../data/train_clean.csv")
-            train = split_and_exclude(train)
-            train['question1'] = train['question1'].apply(' '.join)
-            train['question2'] = train['question2'].apply(' '.join)
-            #TODO: create embedding for unknown word
+            train = exclude_sents(train)
             all_questions = train['question1'].append(train['question2'])
             sentences = all_questions.fillna('').apply(lambda x: x.split())
             print('Training model...')
