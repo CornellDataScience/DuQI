@@ -19,6 +19,8 @@ class Model:
         data = pd.read_csv('../data/train_clean.csv')
         # dropping low-length and high-length sentences
         data = exclude_sents(data)
+        # TODO: undo data cut
+        data = data[:2000]
         # randomly shuffling data and separating into train/val data
         train_data, val_data = train_val_split(data)
         # pd.Series to ndarray
@@ -49,9 +51,10 @@ class Model:
                 embedding_vector = unk_embed
             self.embedding_matrix[i] = embedding_vector
 
-    def load_pretrained(self, *, model_name):
+    def load_pretrained(self, *, model_name, model_func):
         print('Loading model...')
-        self.model = k.models.load_model('../models/'+model_name)
+        self.model = model_func()
+        self.model.load_weights('../models/'+model_name)
         print('Model loaded from models/'+model_name)
 
     def train_model(self, *, model_name, model_func):
@@ -63,7 +66,7 @@ class Model:
                     batch_size=c.BATCH_SIZE,
                     epochs=c.NUM_EPOCHS)
         print('Model trained.\nSaving model...')
-        self.model.save('../models/'+model_name)
+        self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
 
     def evaluate_preds(self):
@@ -101,35 +104,31 @@ class Model:
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
-        gru.add(k.layers.Dropout(0.25))
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
-                             activation='relu'))    #TODO: test tanh
-        gru.add(k.layers.Dropout(0.25))
+                             activation='relu',  #TODO: test tanh
+                             dropout = 0.3))    
         return gru
 
     def lstm_embedding(self):
         """Returns: GRU model for sentence embedding, applied to each question input.
         """        
-        gru = k.models.Sequential()
+        lstm = k.models.Sequential()
         num_words = len(self.tokenizer.word_index.items())
         embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
         # the model will take as input an integer matrix of size (batch, input_length).
-        gru.add(k.layers.Embedding(num_words,
+        lstm.add(k.layers.Embedding(num_words,
                                    c.WORD_EMBED_SIZE,
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
-        gru.add(k.layers.LSTM(c.SENT_EMBED_SIZE,
+        lstm.add(k.layers.LSTM(c.SENT_EMBED_SIZE,
                              activation='relu'))
-        return gru
+        return lstm
 
-    def eucl_dist(self, vects):
-        x, y = vects
-        return k.backend.sqrt(k.backend.sum(k.backend.square(x - y), axis=1, keepdims=True))
-
-    def eucl_dist_shape(self, shapes):
-        shape1, _ = shapes
-        return (shape1[0], 1)
+    def lambda_distance(self, sent1, sent2):
+        f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
+        result = k.layers.Lambda(f)([sent1,sent2])
+        return result
 
     def gru_similarity_model(self):
         """GRU embedding -> Euclidean distance -> sigmoid activation
@@ -138,8 +137,7 @@ class Model:
         input2 = k.layers.Input(shape=(c.SENT_LEN,))
         gru1_out = self.gru_embedding()(input1)
         gru2_out = self.gru_embedding()(input2)
-        distance = k.layers.Lambda(self.eucl_dist,
-                                   output_shape=self.eucl_dist_shape)([gru1_out,gru2_out])
+        distance = self.lambda_distance(gru1_out, gru2_out)
         out = k.layers.Dense(1, activation="sigmoid")(distance)
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
@@ -162,6 +160,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='gru_v4.h5',model_func=m.gru_similarity_model)
-    # m.load_pretrained(model_name='')
+    # m.train_model(model_name='test.h5',model_func=m.gru_similarity_model)
+    m.load_pretrained(model_name='test.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()

@@ -28,3 +28,8 @@ Pre-03/11 (Zhao):
            * Non-overlapping content words --> more likely to be non-duplicates
   * Evaluation:
            * Guided by Jacc. Similarity
+
+03/26 (Zhao):
+* Finished `nn.py` (previous `gru.py`) - basic framework for training neural nets
+* Trained a variety of models, later deleted them due to Keras loading issue with Lambda layers.
+    * Collected training/validation accuracy and loss data
