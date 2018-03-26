@@ -28,6 +28,10 @@ Pre-03/11 (Zhao):
            * Non-overlapping content words --> more likely to be non-duplicates
   * Evaluation:
            * Guided by Jacc. Similarity
+           
+3/24 (Arnav):
+* Finished SVM Training - updated baseline
+* Carried out feature selection by gradually lowering penalty values (NOUN, VERB, ADV most imp.)
 
 03/26 (Zhao):
 * Finished `nn.py` (previous `gru.py`) - basic framework for training neural nets
