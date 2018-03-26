@@ -101,8 +101,10 @@ class Model:
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
+        gru.add(k.layers.Dropout(0.25))
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
                              activation='relu'))    #TODO: test tanh
+        gru.add(k.layers.Dropout(0.25))
         return gru
 
     def lstm_embedding(self):
@@ -118,7 +120,7 @@ class Model:
                                    input_length=c.SENT_LEN))
         # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
         gru.add(k.layers.LSTM(c.SENT_EMBED_SIZE,
-                             activation='relu'))    #TODO: test tanh
+                             activation='relu'))
         return gru
 
     def eucl_dist(self, vects):
@@ -160,6 +162,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='lstm_v1.h5',model_func=m.lstm_similarity_model)
+    m.train_model(model_name='gru_v4.h5',model_func=m.gru_similarity_model)
     # m.load_pretrained(model_name='')
     m.evaluate_preds()

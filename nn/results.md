@@ -45,3 +45,31 @@ Epoch 9/10
 322455/322455 [==============================] - 331s 1ms/step - loss: 0.0777 - val_loss: 0.1619
 Epoch 10/10
 322455/322455 [==============================] - 330s 1ms/step - loss: 0.0694 - val_loss: 0.1676
+
+(3-25) gru_v4.h5
+- GRU embedding, Euclidean similarity, sigmoid activation
+- word embedding size 50, sentence embedding size 100
+- dropout 0.3
+- Training accuracy: 85.21%
+- Validation accuracy: 72.77%
+322455/322455 [==============================] - 291s 904us/step - loss: 0.2067 - val_loss: 0.1831
+Epoch 2/10
+322455/322455 [==============================] - 288s 893us/step - loss: 0.1759 - val_loss: 0.1686
+Epoch 3/10
+322455/322455 [==============================] - 291s 901us/step - loss: 0.1619 - val_loss: 0.1626
+Epoch 4/10
+322455/322455 [==============================] - 288s 894us/step - loss: 0.1519 - val_loss: 0.1601
+Epoch 5/10
+322455/322455 [==============================] - 289s 897us/step - loss: 0.1438 - val_loss: 0.1578
+Epoch 6/10
+322455/322455 [==============================] - 288s 893us/step - loss: 0.1367 - val_loss: 0.1568
+Epoch 7/10
+322455/322455 [==============================] - 289s 895us/step - loss: 0.1307 - val_loss: 0.1557
+Epoch 8/10
+322455/322455 [==============================] - 289s 895us/step - loss: 0.1248 - val_loss: 0.1566
+Epoch 9/10
+322455/322455 [==============================] - 289s 895us/step - loss: 0.1190 - val_loss: 0.1569
+Epoch 10/10
+322455/322455 [==============================] - 288s 894us/step - loss: 0.1148 - val_loss: 0.1566
+
+TODO: TEST PRE- and POST- DROPOUT, CODE ALREADY MODIFIED
