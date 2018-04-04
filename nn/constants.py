@@ -12,3 +12,4 @@ MIN_COUNT = 100                 # min frequency of words that don't count as !UN
 NUM_EPOCHS = 10
 BATCH_SIZE = 128
 WORD2VEC_FILEPATH = '../lang_models/word2vecmodel-'+str(WORD_EMBED_SIZE)+'d_val_included'
+GLOVE_FILEPATH = '../lang_models/glove.6B.'+str(WORD_EMBED_SIZE)+'d.txt'

@@ -1,11 +1,11 @@
-(3-24) gru_v1.h5
+### (3-24) gru_v1.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - *accidentally trained tokenizer and word2vec on both training and validation
 - Training accuracy: 96.41%
 - Validation accuracy: 85.92%
 
-(3-25) gru_v2.h5
+### (3-25) gru_v2.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - Training loss: [0.2088,0.1715,0.1558,0.1432,0.1311,0.1198,0.1092,0.0996,0.0907,0.0826]
@@ -13,7 +13,7 @@
 - Training accuracy: 90.09%
 - Validation accuracy: 71.26%
 
-(3-25) gru_v3.h5
+### (3-25) gru_v3.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - *word embedding size 100, sentence embedding size 100
 - Training loss: [.1833,.1501,.1299,.1141,.1004,.0880,.0777,.0685,.0607,.0537]
@@ -21,7 +21,7 @@
 - Training accuracy: 93.34%
 - Validation accuracy: 72.65%
 
-(3-25) lstm_v1.h5
+### (3-25) lstm_v1.h5
 - *LSTM embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - Training accuracy: 91.27%
@@ -37,7 +37,7 @@ loss: 0.0873 - val_loss: 0.1594
 loss: 0.0777 - val_loss: 0.1619
 loss: 0.0694 - val_loss: 0.1676
 
-(3-25) gru_v4.h5
+### (3-25) gru_v4.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - *dropout 0.3
@@ -54,7 +54,7 @@ loss: 0.1248 - val_loss: 0.1566
 loss: 0.1190 - val_loss: 0.1569
 loss: 0.1148 - val_loss: 0.1566
 
-(3-26) gru_v5.h5
+### (3-26) gru_v5.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - *pre- and post- dropout 0.2
@@ -71,7 +71,7 @@ loss: 0.1167 - val_loss: 0.1736
 loss: 0.1122 - val_loss: 0.1770
 loss: 0.1077 - val_loss: 0.1750
 
-(3-26) gru_v1_re.h5
+### (3-26) gru_v1_re.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
 - word embedding size 50, sentence embedding size 100
 - *trained tokenizer and word2vec on both training and validation
@@ -88,3 +88,31 @@ loss: 0.1255 - val_loss: 0.1473
 loss: 0.1216 - val_loss: 0.1494
 loss: 0.1174 - val_loss: 0.1514
 loss: 0.1138 - val_loss: 0.1493
+
+### (4-3) glove_gru1.h5
+- GRU embeddng, Euclidean similarity, sigmoid activation
+- word embedding size 50, sentence embedding size 100
+- Training Euclidean GRU on GloVe.
+- **Hypothesis:** Better performance than Word2Vec due to size and breadth of language model training sources, resulting in more generalized embeddings rather than overfitting to training data.
+- **Concerns:**
+    - Unknown token embedding was taken to be average of all GloVe embeddings. Should find a method of weighting the embeddings to have a more accurate unknown embedding.
+    - Not using any techniques to reduce overfitting (dropout, regularization, etc). Paper mentioned data augmentation being the most effective method to reduce overfitting, mentioned L2 loss being very ineffective for various values of lambda. Dropout not mentioned.
+- Training
+    - Accuracy: .9379
+    - F1: .9502
+- Validation
+    - Accuracy: .7484
+    - F1: .7591
+- Loss per epoch
+    - loss: 0.1774 - val_loss: 0.1541
+    - loss: 0.1370 - val_loss: 0.1388
+    - loss: 0.1151 - val_loss: 0.1328
+    - loss: 0.0989 - val_loss: 0.1298
+    - loss: 0.0860 - val_loss: 0.1291
+    - loss: 0.0751 - val_loss: 0.1287
+    - loss: 0.0658 - val_loss: 0.1304
+    - loss: 0.0577 - val_loss: 0.1310
+    - loss: 0.0507 - val_loss: 0.1313
+    - loss: 0.0445 - val_loss: 0.1335
+- **Observations:**
+    - Definitely overfitting, though the disparity in accuracy between validation and training is more pronounced than that of the loss. Means there is much room to improve the loss metric. Fully connected similarity network next?
