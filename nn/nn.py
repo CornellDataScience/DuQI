@@ -116,22 +116,6 @@ class Model:
                              activation='relu'))  #TODO: test tanh
         return gru
 
-    def lstm_embedding(self):
-        """Returns: GRU model for sentence embedding, applied to each question input.
-        """        
-        lstm = k.models.Sequential()
-        num_words = len(self.tokenizer.word_index.items())
-        embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
-        # the model will take as input an integer matrix of size (batch, input_length).
-        lstm.add(k.layers.Embedding(num_words,
-                                   c.WORD_EMBED_SIZE,
-                                   embeddings_initializer=embed_matrix_init,
-                                   input_length=c.SENT_LEN))
-        # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
-        lstm.add(k.layers.LSTM(c.SENT_EMBED_SIZE,
-                             activation='relu'))
-        return lstm
-
     def lambda_distance(self, sent1, sent2):
         f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
         result = k.layers.Lambda(f)([sent1,sent2])
@@ -142,22 +126,10 @@ class Model:
         """
         input1 = k.layers.Input(shape=(c.SENT_LEN,))
         input2 = k.layers.Input(shape=(c.SENT_LEN,))
-        gru1_out = self.gru_embedding()(input1)
-        gru2_out = self.gru_embedding()(input2)
+        gru_embed = self.gru_embedding()
+        gru1_out = gru_embed(input1)
+        gru2_out = gru_embed(input2)
         distance = self.lambda_distance(gru1_out, gru2_out)
-        out = k.layers.Dense(1, activation="sigmoid")(distance)
-        model = k.models.Model(inputs=[input1, input2], outputs=[out])
-        return model
-
-    def lstm_similarity_model(self):
-        """LSTM embedding -> Euclidean distance -> sigmoid activation
-        """
-        input1 = k.layers.Input(shape=(c.SENT_LEN,))
-        input2 = k.layers.Input(shape=(c.SENT_LEN,))
-        lstm1_out = self.lstm_embedding()(input1)
-        lstm2_out = self.lstm_embedding()(input2)
-        distance = k.layers.Lambda(self.eucl_dist,
-                                   output_shape=self.eucl_dist_shape)([lstm1_out,lstm2_out])
         out = k.layers.Dense(1, activation="sigmoid")(distance)
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
@@ -176,6 +148,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    # m.train_model(model_name='glove_gru1.h5',model_func=m.gru_similarity_model)
-    m.load_pretrained(model_name='glove_gru1.h5',model_func=m.gru_similarity_model)
+    # m.train_model(model_name='glove_gru1_siamfix.h5',model_func=m.gru_similarity_model)
+    m.load_pretrained(model_name='glove_gru1_siamfix.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()
