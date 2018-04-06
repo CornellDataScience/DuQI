@@ -10,6 +10,6 @@ SENT_INCLUSION_MAX = SENT_LEN   # longer sentences removed from training data
 UNKNOWN_MIN_COUNT = 50          # min frequency of words that get trained for w2v model
 MIN_COUNT = 100                 # min frequency of words that don't count as !UNK!
 NUM_EPOCHS = 10
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 WORD2VEC_FILEPATH = '../lang_models/word2vecmodel-'+str(WORD_EMBED_SIZE)+'d_val_included'
 GLOVE_FILEPATH = '../lang_models/glove.6B.'+str(WORD_EMBED_SIZE)+'d.txt'

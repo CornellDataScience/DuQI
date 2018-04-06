@@ -1,5 +1,6 @@
 # packages
 import io
+import tensorflow as tf
 import keras as k
 import numpy as np
 import pandas as pd
@@ -31,13 +32,23 @@ class Model:
         self.glove = self.glove_dict()
         unk_embed = self.produce_unk_embed()
 
-        print('Converting strings to int arrays...')
+        print('Converting training strings to int arrays...')
         self.x_train_q1 = pad_sequences(self.tokenizer.texts_to_sequences(train_q1_str), maxlen=c.SENT_LEN)
         self.x_train_q2 = pad_sequences(self.tokenizer.texts_to_sequences(train_q2_str), maxlen=c.SENT_LEN)
-        self.y_train = train_data['is_duplicate'].values
+        # one-hotting the labels
+        self.y_train = np.zeros((len(train_q1_str),2))
+        self.y_train[:,1] = 1
+        y_train_labels = train_data['is_duplicate'].values
+        self.y_train[y_train_labels==0] = np.array([1,0])
+
+        print('Converting validation strings to int arrays...')
         self.x_val_q1 = pad_sequences(self.tokenizer.texts_to_sequences(val_q1_str), maxlen=c.SENT_LEN)
         self.x_val_q2 = pad_sequences(self.tokenizer.texts_to_sequences(val_q2_str), maxlen=c.SENT_LEN)
-        self.y_val = val_data['is_duplicate'].values
+        # one-hotting the labels
+        self.y_val = np.zeros((len(val_q1_str),2))
+        self.y_val[:,1] = 1
+        y_val_labels = val_data['is_duplicate'].values
+        self.y_val[y_val_labels==0] = np.array([1,0])
 
         print('Creating embeddings matrix...')
         num_words = len(self.tokenizer.word_index)+2    # 0 index is reserved, oov token appended
@@ -72,7 +83,7 @@ class Model:
         """
         print('Training '+model_name+' model...')
         self.model = model_func()
-        self.model.compile(loss='mean_squared_error', optimizer='adam')
+        self.model.compile(loss='binary_crossentropy', optimizer='adam')
         self.model.fit([self.x_train_q1, self.x_train_q2], self.y_train,
                     validation_data=([self.x_val_q1, self.x_val_q2], self.y_val),
                     batch_size=c.BATCH_SIZE,
@@ -100,9 +111,12 @@ class Model:
         unknown_embedding = sum(self.glove.values())/len(self.glove.values())
         return unknown_embedding
 
-    def gru_embedding(self):
-        """Returns: GRU model for sentence embedding, applied to each question input.
-        """        
+    def gru_similarity_model(self):
+        """GRU embedding -> Euclidean distance -> sigmoid activation
+        """
+        input1 = k.layers.Input(shape=(c.SENT_LEN,))
+        input2 = k.layers.Input(shape=(c.SENT_LEN,))
+
         gru = k.models.Sequential()
         num_words = len(self.tokenizer.word_index.items())
         embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
@@ -112,42 +126,50 @@ class Model:
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
-        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
-                             activation='relu'))  #TODO: test tanh
-        return gru
+        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE, activation='tanh')) # not relu because exploding gradient
+        gru1_out = gru(input1)
+        gru2_out = gru(input2)
 
-    def lambda_distance(self, sent1, sent2):
-        f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
-        result = k.layers.Lambda(f)([sent1,sent2])
-        return result
+        # dist_f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
+        # distance = k.layers.Lambda(dist_f)([gru1_out,gru2_out])
 
-    def gru_similarity_model(self):
-        """GRU embedding -> Euclidean distance -> sigmoid activation
-        """
-        input1 = k.layers.Input(shape=(c.SENT_LEN,))
-        input2 = k.layers.Input(shape=(c.SENT_LEN,))
-        gru_embed = self.gru_embedding()
-        gru1_out = gru_embed(input1)
-        gru2_out = gru_embed(input2)
-        distance = self.lambda_distance(gru1_out, gru2_out)
-        out = k.layers.Dense(1, activation="sigmoid")(distance)
+        grus_out = k.layers.concatenate([gru1_out, gru2_out]) #TODO: add additional features
+        dense1_out = k.layers.Dense(100, activation='relu')(grus_out)
+        out = k.layers.Dense(2, activation="softmax")(dense1_out)
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
+
+    # def compute_accuracy(self, preds, labels):
+    #     """Returns: accuracy, f1 score
+    #     """
+    #     accuracy = labels[preds.ravel() >= 0.5].mean()
+    #     true_pos = sum(labels[preds.ravel() >= 0.5])
+    #     false_neg = sum(labels[preds.ravel() < 0.5])
+    #     false_pos = len(labels[preds.ravel() >= 0.5])-true_pos
+    #     precision = true_pos/(true_pos+false_pos)
+    #     recall = true_pos/(true_pos+false_neg)
+    #     f1 = 2*precision*recall/(precision+recall)
+    #     return accuracy, f1
 
     def compute_accuracy(self, preds, labels):
         """Returns: accuracy, f1 score
         """
-        accuracy = labels[preds.ravel() >= 0.5].mean()
-        true_pos = sum(labels[preds.ravel() >= 0.5])
-        false_neg = sum(labels[preds.ravel() < 0.5])
-        false_pos = len(labels[preds.ravel() >= 0.5])-true_pos
-        precision = true_pos/(true_pos+false_pos)
-        recall = true_pos/(true_pos+false_neg)
-        f1 = 2*precision*recall/(precision+recall)
+        # preds, labels are nx2
+        rounded_preds = np.round(preds)
+        num_correct = (labels==rounded_preds).astype(int).sum()/2
+        accuracy = num_correct/preds.shape[0]
+        #TODO: F1 score calculation
+        # true_pos = sum(labels[preds.ravel() >= 0.5])
+        # false_neg = sum(labels[preds.ravel() < 0.5])
+        # false_pos = len(labels[preds.ravel() >= 0.5])-true_pos
+        # precision = true_pos/(true_pos+false_pos)
+        # recall = true_pos/(true_pos+false_neg)
+        # f1 = 2*precision*recall/(precision+recall)
+        f1=0
         return accuracy, f1
 
 if __name__=="__main__":
     m = Model()
-    # m.train_model(model_name='glove_gru1_siamfix.h5',model_func=m.gru_similarity_model)
-    m.load_pretrained(model_name='glove_gru1_siamfix.h5',model_func=m.gru_similarity_model)
+    # m.train_model(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
+    m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()

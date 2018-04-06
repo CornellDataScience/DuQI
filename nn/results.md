@@ -96,7 +96,7 @@ loss: 0.1138 - val_loss: 0.1493
 - **Hypothesis:** Better performance than Word2Vec due to size and breadth of language model training sources, resulting in more generalized embeddings rather than overfitting to training data.
 - **Concerns:**
     - Unknown token embedding was taken to be average of all GloVe embeddings. Should find a method of weighting the embeddings to have a more accurate unknown embedding.
-    - Not using any techniques to reduce overfitting (dropout, regularization, etc). Paper mentioned data augmentation being the most effective method to reduce overfitting, mentioned L2 loss being very ineffective for various values of lambda. Dropout not mentioned.
+    - Not using any techniques to reduce overfitting (dropout, regularization, etc). Paper mentioned data augmentation being the most effective method to reduce overfitting, included L2 regularization in loss function, dropout not mentioned.
 - Training
     - Accuracy: .9379
     - F1: .9502
@@ -116,3 +116,40 @@ loss: 0.1138 - val_loss: 0.1493
     - loss: 0.0445 - val_loss: 0.1335
 - **Observations:**
     - Definitely overfitting, though the disparity in accuracy between validation and training is more pronounced than that of the loss. Means there is much room to improve the loss metric. Fully connected similarity network next?
+
+### (4-5) glove_gru1_siamfix.h5
+- Found that previous network was non-Siamese, so trained this Siamese network.
+- Upon closer inspection, the output is the exact same for every pair of inputs.
+    - Perhaps this is due to `gru1_out` and `gru2_out` having the same output?
+- Loss per epoch
+    - loss: 0.2347 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+    - loss: 0.2331 - val_loss: 0.2333
+
+### (4-5) glove_gru2.h5
+- Siamese GRU encoding, 2 layer similarity network
+- Similarity network input is concatenation of 2 sentence vectors
+- Training
+    - Accuracy: 0.9633
+- Validation
+    - Accuracy: 0.8384
+- Loss per epoch
+    - loss: 0.4880 - val_loss: 0.4251
+    - loss: 0.3796 - val_loss: 0.3858
+    - loss: 0.3197 - val_loss: 0.3776
+    - loss: 0.2763 - val_loss: 0.3815
+    - loss: 0.2428 - val_loss: 0.4000
+    - loss: 0.2151 - val_loss: 0.4117
+    - loss: 0.1908 - val_loss: 0.4398
+    - loss: 0.1682 - val_loss: 0.4701
+    - loss: 0.1483 - val_loss: 0.5147
+    - loss: 0.1294 - val_loss: 0.5444
+- **Observations:**
+    - Extreme overfitting. Should test dropout, L2 regularization, etc.
