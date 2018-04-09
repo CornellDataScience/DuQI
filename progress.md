@@ -41,3 +41,7 @@ Pre-3/11 (Zhao):
 4/4 (Zhao):
 * Added GloVe word embedding functionality
 * Added F1 score computations
+
+4/9 (Zhao):
+* Tested Tensorboard, Comet.ml
+* Cleaned evaluation

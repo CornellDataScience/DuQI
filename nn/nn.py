@@ -1,4 +1,5 @@
 # packages
+from comet_ml import Experiment
 import io
 import tensorflow as tf
 import keras as k
@@ -7,6 +8,7 @@ import pandas as pd
 import gensim as gs
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+from sklearn.metrics import accuracy_score, f1_score
 # files
 import constants as c
 from preprocessing import exclude_sents, train_val_split
@@ -73,6 +75,8 @@ class Model:
         return embeddings_dict
 
     def load_pretrained(self, *, model_name, model_func):
+        """Loads pretrained model weights.
+        """
         print('Loading model...')
         self.model = model_func()
         self.model.load_weights('../models/'+model_name)
@@ -84,10 +88,17 @@ class Model:
         print('Training '+model_name+' model...')
         self.model = model_func()
         self.model.compile(loss='binary_crossentropy', optimizer='adam')
+
+        # IF UNCOMMENTING CODE BELOW: ADD callbacks=[tboard] TO MODEL FIT
+        # tboard = k.callbacks.TensorBoard(log_dir='logs/'+model_name[:-3], 
+        #                                  write_graph=True,
+        #                                  write_images=True)
+        
         self.model.fit([self.x_train_q1, self.x_train_q2], self.y_train,
                     validation_data=([self.x_val_q1, self.x_val_q2], self.y_val),
                     batch_size=c.BATCH_SIZE,
                     epochs=c.NUM_EPOCHS)
+                    
         print('Model trained.\nSaving model...')
         self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
@@ -95,12 +106,16 @@ class Model:
     def evaluate_preds(self):
         """Prints: accuracy and f1 of evaluation on training and validation data.
         """
+        print('Generating predictions...')
         pred_train = self.model.predict([self.x_train_q1, self.x_train_q2])
+        print('Evaluating predictions...')
         acc_train, f1_train = self.compute_accuracy(pred_train, self.y_train)
         print('* Accuracy on training set: %0.4f' % acc_train)
         print('* F1 score on training set: %0.4f' % f1_train)
 
+        print('Generating predictions...')
         pred_val = self.model.predict([self.x_val_q1, self.x_val_q2])
+        print('Evaluating predictions...')
         acc_val, f1_val = self.compute_accuracy(pred_val, self.y_val)
         print('* Accuracy on validation set: %0.4f' % acc_val)
         print('* F1 score on validation set: %0.4f' % f1_val)
@@ -120,18 +135,15 @@ class Model:
         gru = k.models.Sequential()
         num_words = len(self.tokenizer.word_index.items())
         embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
-        # the model will take as input an integer matrix of size (batch, input_length).
+        # input is integer matrix of size (None, SENT_LEN).
         gru.add(k.layers.Embedding(num_words,
                                    c.WORD_EMBED_SIZE,
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
-        # now output shape is (None, SENT_LEN, WORD_EMBED_SIZE), where None is the batch dimension.
-        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE, activation='tanh')) # not relu because exploding gradient
+        # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
+        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE, activation='tanh')) # relu explodes
         gru1_out = gru(input1)
         gru2_out = gru(input2)
-
-        # dist_f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
-        # distance = k.layers.Lambda(dist_f)([gru1_out,gru2_out])
 
         grus_out = k.layers.concatenate([gru1_out, gru2_out]) #TODO: add additional features
         dense1_out = k.layers.Dense(100, activation='relu')(grus_out)
@@ -139,37 +151,19 @@ class Model:
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
-    # def compute_accuracy(self, preds, labels):
-    #     """Returns: accuracy, f1 score
-    #     """
-    #     accuracy = labels[preds.ravel() >= 0.5].mean()
-    #     true_pos = sum(labels[preds.ravel() >= 0.5])
-    #     false_neg = sum(labels[preds.ravel() < 0.5])
-    #     false_pos = len(labels[preds.ravel() >= 0.5])-true_pos
-    #     precision = true_pos/(true_pos+false_pos)
-    #     recall = true_pos/(true_pos+false_neg)
-    #     f1 = 2*precision*recall/(precision+recall)
-    #     return accuracy, f1
-
     def compute_accuracy(self, preds, labels):
         """Returns: accuracy, f1 score
         """
-        # preds, labels are nx2
-        rounded_preds = np.round(preds)
-        num_correct = (labels==rounded_preds).astype(int).sum()/2
-        accuracy = num_correct/preds.shape[0]
-        #TODO: F1 score calculation
-        # true_pos = sum(labels[preds.ravel() >= 0.5])
-        # false_neg = sum(labels[preds.ravel() < 0.5])
-        # false_pos = len(labels[preds.ravel() >= 0.5])-true_pos
-        # precision = true_pos/(true_pos+false_pos)
-        # recall = true_pos/(true_pos+false_neg)
-        # f1 = 2*precision*recall/(precision+recall)
-        f1=0
+        # preds, labels are nx2 - time to turn to 0s and 1s
+        binarize = lambda x: 1-x.transpose().flatten()[:x.size//2]
+        preds = np.round(preds)
+        accuracy = accuracy_score(binarize(labels),binarize(preds))
+        f1 = f1_score(binarize(labels),binarize(preds))
         return accuracy, f1
 
 if __name__=="__main__":
+    experiment = Experiment(api_key="4hqzKhIZpTJSqM19YyWbcBT96")
     m = Model()
-    # m.train_model(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
-    m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
+    m.train_model(model_name='glove_gru2_comet.h5',model_func=m.gru_similarity_model)
+    # m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()

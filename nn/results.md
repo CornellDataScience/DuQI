@@ -138,8 +138,10 @@ loss: 0.1138 - val_loss: 0.1493
 - Similarity network input is concatenation of 2 sentence vectors
 - Training
     - Accuracy: 0.9633
+    - F1 score: 0.9514
 - Validation
     - Accuracy: 0.8384
+    - F1 score: 0.7895
 - Loss per epoch
     - loss: 0.4880 - val_loss: 0.4251
     - loss: 0.3796 - val_loss: 0.3858
