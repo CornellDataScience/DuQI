@@ -98,7 +98,7 @@ class Model:
                     validation_data=([self.x_val_q1, self.x_val_q2], self.y_val),
                     batch_size=c.BATCH_SIZE,
                     epochs=c.NUM_EPOCHS)
-                    
+
         print('Model trained.\nSaving model...')
         self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
@@ -162,7 +162,7 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    experiment = Experiment(api_key="4hqzKhIZpTJSqM19YyWbcBT96")
+    experiment = Experiment(api_key="4hqzKhIZpTJSqM19YyWbcBT96", project_name="duqi")
     m = Model()
     m.train_model(model_name='glove_gru2_comet.h5',model_func=m.gru_similarity_model)
     # m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
