@@ -1,5 +1,4 @@
 # packages
-from comet_ml import Experiment
 import io
 import tensorflow as tf
 import keras as k
@@ -89,15 +88,16 @@ class Model:
         self.model = model_func()
         self.model.compile(loss='binary_crossentropy', optimizer='adam')
 
-        # IF UNCOMMENTING CODE BELOW: ADD callbacks=[tboard] TO MODEL FIT
-        # tboard = k.callbacks.TensorBoard(log_dir='logs/'+model_name[:-3], 
-        #                                  write_graph=True,
-        #                                  write_images=True)
+        # TensorBoard callback
+        tboard = k.callbacks.TensorBoard(log_dir='logs/'+model_name[:-3],
+                                         write_graph=True,
+                                         write_images=True)
         
         self.model.fit([self.x_train_q1, self.x_train_q2], self.y_train,
                     validation_data=([self.x_val_q1, self.x_val_q2], self.y_val),
                     batch_size=c.BATCH_SIZE,
-                    epochs=c.NUM_EPOCHS)
+                    epochs=c.NUM_EPOCHS,
+                    callbacks=[tboard])
 
         print('Model trained.\nSaving model...')
         self.model.save_weights('../models/'+model_name)
@@ -141,13 +141,18 @@ class Model:
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
-        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE, activation='tanh')) # relu explodes
+        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
+                             activation='tanh',         # relu explodes
+                             implementation=2))         # better GPU performance
         gru1_out = gru(input1)
         gru2_out = gru(input2)
 
-        grus_out = k.layers.concatenate([gru1_out, gru2_out]) #TODO: add additional features
-        dense1_out = k.layers.Dense(100, activation='relu')(grus_out)
-        out = k.layers.Dense(2, activation="softmax")(dense1_out)
+        #TODO: add additional features to concatenated feature vector
+        grus_out = k.layers.concatenate([gru1_out, gru2_out])               # concatenate
+        dense1_out = k.layers.Dense(100)(grus_out)                          # dense
+        norm1_out = k.layers.BatchNormalization()(dense1_out)               # batch norm
+        active1_out = k.layers.Activation('relu')(norm1_out)                # relu
+        out = k.layers.Dense(2, activation="softmax")(active1_out)          # dense softmax
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
@@ -162,8 +167,7 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    experiment = Experiment(api_key="4hqzKhIZpTJSqM19YyWbcBT96", project_name="duqi")
     m = Model()
-    m.train_model(model_name='glove_gru2_comet.h5',model_func=m.gru_similarity_model)
+    m.train_model(model_name='glove_gru4.h5',model_func=m.gru_similarity_model)
     # m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()

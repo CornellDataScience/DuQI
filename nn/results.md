@@ -26,16 +26,17 @@
 - word embedding size 50, sentence embedding size 100
 - Training accuracy: 91.27%
 - Validation accuracy: 69.54%
-loss: 0.2001 - val_loss: 0.1782
-loss: 0.1674 - val_loss: 0.1647
-loss: 0.1507 - val_loss: 0.1586
-loss: 0.1355 - val_loss: 0.1556
-loss: 0.1219 - val_loss: 0.1558
-loss: 0.1093 - val_loss: 0.1544
-loss: 0.0977 - val_loss: 0.1570
-loss: 0.0873 - val_loss: 0.1594
-loss: 0.0777 - val_loss: 0.1619
-loss: 0.0694 - val_loss: 0.1676
+- Loss per epoch
+    - loss: 0.2001 - val_loss: 0.1782
+    - loss: 0.1674 - val_loss: 0.1647
+    - loss: 0.1507 - val_loss: 0.1586
+    - loss: 0.1355 - val_loss: 0.1556
+    - loss: 0.1219 - val_loss: 0.1558
+    - loss: 0.1093 - val_loss: 0.1544
+    - loss: 0.0977 - val_loss: 0.1570
+    - loss: 0.0873 - val_loss: 0.1594
+    - loss: 0.0777 - val_loss: 0.1619
+    - loss: 0.0694 - val_loss: 0.1676
 
 ### (3-25) gru_v4.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
@@ -43,16 +44,17 @@ loss: 0.0694 - val_loss: 0.1676
 - *dropout 0.3
 - Training accuracy: 85.21%
 - Validation accuracy: 72.77%
-loss: 0.2067 - val_loss: 0.1831
-loss: 0.1759 - val_loss: 0.1686
-loss: 0.1619 - val_loss: 0.1626
-loss: 0.1519 - val_loss: 0.1601
-loss: 0.1438 - val_loss: 0.1578
-loss: 0.1367 - val_loss: 0.1568
-loss: 0.1307 - val_loss: 0.1557
-loss: 0.1248 - val_loss: 0.1566
-loss: 0.1190 - val_loss: 0.1569
-loss: 0.1148 - val_loss: 0.1566
+- Loss per epoch
+    - loss: 0.2067 - val_loss: 0.1831
+    - loss: 0.1759 - val_loss: 0.1686
+    - loss: 0.1619 - val_loss: 0.1626
+    - loss: 0.1519 - val_loss: 0.1601
+    - loss: 0.1438 - val_loss: 0.1578
+    - loss: 0.1367 - val_loss: 0.1568
+    - loss: 0.1307 - val_loss: 0.1557
+    - loss: 0.1248 - val_loss: 0.1566
+    - loss: 0.1190 - val_loss: 0.1569
+    - loss: 0.1148 - val_loss: 0.1566
 
 ### (3-26) gru_v5.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
@@ -60,16 +62,17 @@ loss: 0.1148 - val_loss: 0.1566
 - *pre- and post- dropout 0.2
 - Training accuracy: 74.27%
 - Validation accuracy: 61.14%
-loss: 0.1931 - val_loss: 0.1741
-loss: 0.1654 - val_loss: 0.1664
-loss: 0.1523 - val_loss: 0.1621
-loss: 0.1428 - val_loss: 0.1643
-loss: 0.1352 - val_loss: 0.1673
-loss: 0.1282 - val_loss: 0.1642
-loss: 0.1226 - val_loss: 0.1728
-loss: 0.1167 - val_loss: 0.1736
-loss: 0.1122 - val_loss: 0.1770
-loss: 0.1077 - val_loss: 0.1750
+- Loss per epoch
+    - loss: 0.1931 - val_loss: 0.1741
+    - loss: 0.1654 - val_loss: 0.1664
+    - loss: 0.1523 - val_loss: 0.1621
+    - loss: 0.1428 - val_loss: 0.1643
+    - loss: 0.1352 - val_loss: 0.1673
+    - loss: 0.1282 - val_loss: 0.1642
+    - loss: 0.1226 - val_loss: 0.1728
+    - loss: 0.1167 - val_loss: 0.1736
+    - loss: 0.1122 - val_loss: 0.1770
+    - loss: 0.1077 - val_loss: 0.1750
 
 ### (3-26) gru_v1_re.h5
 - GRU embedding, Euclidean similarity, sigmoid activation
@@ -78,16 +81,17 @@ loss: 0.1077 - val_loss: 0.1750
 - *dropout = 0.3
 - Training accuracy: 78.06%
 - Validation accuracy: 68.55%
-loss: 0.1970 - val_loss: 0.1735
-loss: 0.1691 - val_loss: 0.1605
-loss: 0.1543 - val_loss: 0.1539
-loss: 0.1440 - val_loss: 0.1527
-loss: 0.1368 - val_loss: 0.1490
-loss: 0.1303 - val_loss: 0.1499
-loss: 0.1255 - val_loss: 0.1473
-loss: 0.1216 - val_loss: 0.1494
-loss: 0.1174 - val_loss: 0.1514
-loss: 0.1138 - val_loss: 0.1493
+- Loss per epoch
+    - loss: 0.1970 - val_loss: 0.1735
+    - loss: 0.1691 - val_loss: 0.1605
+    - loss: 0.1543 - val_loss: 0.1539
+    - loss: 0.1440 - val_loss: 0.1527
+    - loss: 0.1368 - val_loss: 0.1490
+    - loss: 0.1303 - val_loss: 0.1499
+    - loss: 0.1255 - val_loss: 0.1473
+    - loss: 0.1216 - val_loss: 0.1494
+    - loss: 0.1174 - val_loss: 0.1514
+    - loss: 0.1138 - val_loss: 0.1493
 
 ### (4-3) glove_gru1.h5
 - GRU embeddng, Euclidean similarity, sigmoid activation
@@ -155,3 +159,53 @@ loss: 0.1138 - val_loss: 0.1493
     - loss: 0.1294 - val_loss: 0.5444
 - **Observations:**
     - Extreme overfitting. Should test dropout, L2 regularization, etc.
+
+### (4-10) glove_gru3.h5
+- Changes from glove_gru2:
+    - Added pre-activation batch norm to first dense layer
+    - Added 0.4 dropout to GRU
+- Training
+    - Accuracy: 0.8623
+    - F1 score: 0.8317
+- Validation
+    - Accuracy: 0.8169
+    - F1 score: 0.7766
+- Loss per epoch
+    - loss: 0.5572 - val_loss: 0.4892
+    - loss: 0.4916 - val_loss: 0.4720
+    - loss: 0.4598 - val_loss: 0.4595
+    - loss: 0.4362 - val_loss: 0.4803
+    - loss: 0.4147 - val_loss: 0.4446
+    - loss: 0.3974 - val_loss: 0.4515
+    - loss: 0.3833 - val_loss: 0.4277
+    - loss: 0.3696 - val_loss: 0.4692
+    - loss: 0.3580 - val_loss: 0.4239
+    - loss: 0.3476 - val_loss: 0.4095
+- **Observations:**
+    - Perplexing lack of generalization
+    - Erratic validation loss behavior
+    - Maybe dropout was overtuned?
+
+### (4-10) glove_gru4.h5
+- Changes from glove_gru3:
+    - Removed GRU dropout, kept batch norm
+- Training
+    - Accuracy: 0.9560
+    - F1 score: 0.9420
+- Validation
+    - Accuracy: 0.8417
+    - F1 score: 0.7929
+- Loss per epoch
+    - loss: 0.4820 - val_loss: 0.4299
+    - loss: 0.3788 - val_loss: 0.4327
+    - loss: 0.3244 - val_loss: 0.3787
+    - loss: 0.2848 - val_loss: 0.3797
+    - loss: 0.2525 - val_loss: 0.3880
+    - loss: 0.2252 - val_loss: 0.3998
+    - loss: 0.2006 - val_loss: 0.4152
+    - loss: 0.1790 - val_loss: 0.4448
+    - loss: 0.1596 - val_loss: 0.4603
+    - loss: 0.1425 - val_loss: 0.4987
+- **Observations:**
+    - still slightly inferior to vanialla glove_gru2 model
+
