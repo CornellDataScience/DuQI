@@ -3,7 +3,7 @@
 
 NUM_EPOCHS = 10
 BATCH_SIZE = 256
-WORD_EMBED_SIZE = 50            # size of word embedding
+WORD_EMBED_SIZE = 300           # size of word embedding
 SENT_EMBED_SIZE = 100           # size of sentence embedding
 SENT_LEN = 50                   # fixed length of sentence
 SENT_INCLUSION_MIN = 3          # shorter sentences removed from training data

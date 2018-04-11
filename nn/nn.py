@@ -143,6 +143,7 @@ class Model:
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
                              activation='tanh',         # relu explodes
+                             dropout=0.4,
                              implementation=2))         # better GPU performance
         gru1_out = gru(input1)
         gru2_out = gru(input2)
@@ -168,6 +169,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='glove_gru4.h5',model_func=m.gru_similarity_model)
+    m.train_model(model_name='glove_gru2_v2_100d.h5',model_func=m.gru_similarity_model)
     # m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()

@@ -137,7 +137,7 @@
     - loss: 0.2331 - val_loss: 0.2333
     - loss: 0.2331 - val_loss: 0.2333
 
-### (4-5) glove_gru2.h5
+### (4-5) glove_gru2_v1.h5
 - Siamese GRU encoding, 2 layer similarity network
 - Similarity network input is concatenation of 2 sentence vectors
 - Training
@@ -160,10 +160,10 @@
 - **Observations:**
     - Extreme overfitting. Should test dropout, L2 regularization, etc.
 
-### (4-10) glove_gru3.h5
-- Changes from glove_gru2:
-    - Added pre-activation batch norm to first dense layer
-    - Added 0.4 dropout to GRU
+### (4-10) glove_gru2_v2.h5
+- Vanilla glove_gru2 with:
+    - Pre-activation batch norm to first dense layer
+    - 0.4 dropout in GRU
 - Training
     - Accuracy: 0.8623
     - F1 score: 0.8317
@@ -186,9 +186,9 @@
     - Erratic validation loss behavior
     - Maybe dropout was overtuned?
 
-### (4-10) glove_gru4.h5
-- Changes from glove_gru3:
-    - Removed GRU dropout, kept batch norm
+### (4-10) glove_gru2_v3.h5
+- Vanilla glove_gru2 with:
+    - Pre-activation batch norm to first dense layer
 - Training
     - Accuracy: 0.9560
     - F1 score: 0.9420
@@ -207,5 +207,52 @@
     - loss: 0.1596 - val_loss: 0.4603
     - loss: 0.1425 - val_loss: 0.4987
 - **Observations:**
-    - still slightly inferior to vanialla glove_gru2 model
+    - still slightly inferior to vanilla glove_gru2 model
 
+### (4-10) glove_gru2_v1_100d.h5
+- Training
+    - Accuracy: 0.9799
+    - F1 score: 0.9729
+    - 100-dimensional
+- Validation
+    - Accuracy: 0.8422
+    - F1 score: 0.7875
+- Loss per epoch
+    - loss: 0.4761 - val_loss: 0.4099
+    - loss: 0.3591 - val_loss: 0.3750
+    - loss: 0.2892 - val_loss: 0.3786
+    - loss: 0.2394 - val_loss: 0.3810
+    - loss: 0.1997 - val_loss: 0.4073
+    - loss: 0.1664 - val_loss: 0.4410
+    - loss: 0.1383 - val_loss: 0.5007
+    - loss: 0.1140 - val_loss: 0.5487
+    - loss: 0.0943 - val_loss: 0.6000
+    - loss: 0.0774 - val_loss: 0.6710
+- **Observations:**
+    - More evidence that glove_gru2_v1 was overfitting
+
+### (4-10) glove_gru2_v2_300d.h5
+- Vanilla glove_gru2 with:
+    - Pre-activation batch norm to first dense layer
+    - 0.4 dropout in GRU
+    - 300-dimensional
+- Training
+    - Accuracy: 0.9339
+    - F1 score: 0.9165
+- Validation
+    - Accuracy: 0.8346
+    - F1 score: 0.7960
+- Loss per epoch
+    - loss: 0.5176 - val_loss: 0.4413
+    - loss: 0.4242 - val_loss: 0.4006
+    - loss: 0.3720 - val_loss: 0.3907
+    - loss: 0.3317 - val_loss: 0.3879
+    - loss: 0.3017 - val_loss: 0.4115
+    - loss: 0.2768 - val_loss: 0.3935
+    - loss: 0.2568 - val_loss: 0.4127
+    - loss: 0.2388 - val_loss: 0.4079
+    - loss: 0.2226 - val_loss: 0.4241
+    - loss: 0.2100 - val_loss: 0.4375
+- **Observations:**
+    - Overfitting still not ideal
+    - 300d doesn't take much more training time than 50d.
