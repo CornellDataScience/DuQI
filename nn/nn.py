@@ -86,7 +86,9 @@ class Model:
         """
         print('Training '+model_name+' model...')
         self.model = model_func()
-        self.model.compile(loss='binary_crossentropy', optimizer='adam')
+        self.model.compile(loss='binary_crossentropy',
+                           optimizer='adam',
+                           metrics=['accuracy'])
 
         # TensorBoard callback
         tboard = k.callbacks.TensorBoard(log_dir='logs/'+model_name[:-3],
