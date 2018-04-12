@@ -86,7 +86,7 @@ class Model:
         """
         print('Training '+model_name+' model...')
         self.model = model_func()
-        self.model.compile(loss='binary_crossentropy',
+        self.model.compile(loss='categorical_crossentropy',
                            optimizer='adam',
                            metrics=['accuracy'])
 
