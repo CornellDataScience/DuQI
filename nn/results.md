@@ -256,3 +256,5 @@
 - **Observations:**
     - Overfitting still not ideal
     - 300d doesn't take much more training time than 50d.
+
+### Changed binary_crossentropy to categorical, test asap.
