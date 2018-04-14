@@ -1,0 +1,22 @@
+.head {
+	min-height: 0px;
+	width: 100%;
+	display: block;	
+	padding: 0px;
+	text-align: center;
+	margin:0px;
+}
+.content {
+	min-height: 0px;
+	width: 100%;
+	display: block;	
+	padding: 0px;
+	text-align: center;
+	margin:0px;
+}
+.forms {
+	display: inline-block;
+}
+.print_result {
+	display: inline-block;
+}
