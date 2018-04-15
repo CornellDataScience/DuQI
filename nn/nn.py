@@ -10,7 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score, f1_score
 # files
 import constants as c
-from preprocessing import exclude_sents, train_val_split
+from preprocessing import exclude_sents, train_val_split, clean_string
 
 class Model:
     def __init__(self):
@@ -104,6 +104,14 @@ class Model:
         print('Model trained.\nSaving model...')
         self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
+    
+    def is_dup(self, q1, q2):
+        """Returns: Probability that questions are duplicates
+        """
+        q1 = pad_sequences(self.tokenizer.texts_to_sequences([clean_string(q1)]), maxlen=c.SENT_LEN)
+        q2 = pad_sequences(self.tokenizer.texts_to_sequences([clean_string(q2)]), maxlen=c.SENT_LEN)
+        pred = self.model.predict([q1,q2])
+        return pred[0][1]
 
     def evaluate_preds(self):
         """Prints: accuracy and f1 of evaluation on training and validation data.
@@ -175,4 +183,5 @@ if __name__=="__main__":
     m = Model()
     # m.train_model(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
     m.load_pretrained(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
-    m.evaluate_preds()
+    print(m.is_dup('is the sky blue?','is it true that the sky is blue?'))
+    # m.evaluate_preds()
