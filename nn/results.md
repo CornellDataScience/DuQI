@@ -257,4 +257,29 @@
     - Overfitting still not ideal
     - 300d doesn't take much more training time than 50d.
 
-### Changed binary_crossentropy to categorical, test asap.
+### (4-12) glove_gru3_v1.h5
+- Notes
+    - Changed binary CE to categorical CE
+    - Batch norm for dense layer
+    - L2 regularization (lambda = 0.0001) on GRU weights only
+    - No dropout
+- Training
+    - Accuracy: 0.9731
+    - F1 score: 0.9640
+- Validation
+    - Accuracy: 0.8448
+    - F1 score: 0.7934
+- Loss per epoch
+    - loss: 0.4884 - acc: 0.7758 - val_loss: 0.4296 - val_acc: 0.8089
+    - loss: 0.3597 - acc: 0.8495 - val_loss: 0.4195 - val_acc: 0.8214
+    - loss: 0.2889 - acc: 0.8862 - val_loss: 0.4024 - val_acc: 0.8380
+    - loss: 0.2431 - acc: 0.9090 - val_loss: 0.4130 - val_acc: 0.8399
+    - loss: 0.2098 - acc: 0.9249 - val_loss: 0.4515 - val_acc: 0.8414
+    - loss: 0.1855 - acc: 0.9368 - val_loss: 0.4636 - val_acc: 0.8418
+    - loss: 0.1646 - acc: 0.9463 - val_loss: 0.5135 - val_acc: 0.8371
+    - loss: 0.1498 - acc: 0.9525 - val_loss: 0.5258 - val_acc: 0.8436
+    - loss: 0.1364 - acc: 0.9584 - val_loss: 0.5403 - val_acc: 0.8445
+    - loss: 0.1257 - acc: 0.9632 - val_loss: 0.5800 - val_acc: 0.8448
+- **Observations:**
+    - Would like to observe more epochs, more regularization. Dropout?
+    - Need to start augmenting data, playing around with dense layer inputs

@@ -10,7 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score, f1_score
 # files
 import constants as c
-from preprocessing import exclude_sents, train_val_split
+from preprocessing import exclude_sents, train_val_split, clean_string
 
 class Model:
     def __init__(self):
@@ -86,7 +86,9 @@ class Model:
         """
         print('Training '+model_name+' model...')
         self.model = model_func()
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam')
+        self.model.compile(loss='categorical_crossentropy',
+                           optimizer='adam',
+                           metrics=['accuracy'])
 
         # TensorBoard callback
         tboard = k.callbacks.TensorBoard(log_dir='logs/'+model_name[:-3],
@@ -102,6 +104,14 @@ class Model:
         print('Model trained.\nSaving model...')
         self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
+    
+    def is_dup(self, q1, q2):
+        """Returns: Probability that questions are duplicates
+        """
+        q1 = pad_sequences(self.tokenizer.texts_to_sequences([clean_string(q1)]), maxlen=c.SENT_LEN)
+        q2 = pad_sequences(self.tokenizer.texts_to_sequences([clean_string(q2)]), maxlen=c.SENT_LEN)
+        pred = self.model.predict([q1,q2])
+        return pred[0][1]
 
     def evaluate_preds(self):
         """Prints: accuracy and f1 of evaluation on training and validation data.
@@ -142,9 +152,11 @@ class Model:
                                    input_length=c.SENT_LEN))
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
-                             activation='tanh',         # relu explodes
-                             dropout=0.4,
-                             implementation=2))         # better GPU performance
+                             activation='tanh',                 # relu explodes
+                             kernel_regularizer=k.regularizers.l2(0.0001),
+                             recurrent_regularizer=k.regularizers.l2(0.0001),
+                             bias_regularizer=k.regularizers.l2(0.0001),
+                             implementation=2))                 # better GPU performance
         gru1_out = gru(input1)
         gru2_out = gru(input2)
 
@@ -169,6 +181,7 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='glove_gru2_v2_100d.h5',model_func=m.gru_similarity_model)
-    # m.load_pretrained(model_name='glove_gru2.h5',model_func=m.gru_similarity_model)
-    m.evaluate_preds()
+    # m.train_model(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
+    m.load_pretrained(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
+    print(m.is_dup('is the sky blue?','is it true that the sky is blue?'))
+    # m.evaluate_preds()
