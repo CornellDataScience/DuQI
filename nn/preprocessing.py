@@ -81,10 +81,12 @@ def exclude_sents(data):
     data = data.drop(data[data['question1'].apply(type)==float].index)  
     data = data.drop(data[data['question2'].apply(type)==float].index)
     # removing sentences that are too short/long
-    data = data.drop(data[data['question1'].apply(len)>c.SENT_INCLUSION_MAX].index)
-    data = data.drop(data[data['question1'].apply(len)<c.SENT_INCLUSION_MIN].index)
-    data = data.drop(data[data['question2'].apply(len)>c.SENT_INCLUSION_MAX].index)
-    data = data.drop(data[data['question2'].apply(len)<c.SENT_INCLUSION_MIN].index)
+    q1_longs = data[data['question1'].apply(len)>c.SENT_INCLUSION_MAX].index
+    q1_shorts = data[data['question1'].apply(len)<c.SENT_INCLUSION_MIN].index
+    q2_longs = data[data['question2'].apply(len)>c.SENT_INCLUSION_MAX].index
+    q2_shorts = data[data['question2'].apply(len)<c.SENT_INCLUSION_MIN].index
+    index_list = q1_longs.union(q1_shorts).union(q2_longs).union(q2_shorts)
+    data = data.drop(index_list)
     data['question1'] = data['question1'].apply(' '.join)
     data['question2'] = data['question2'].apply(' '.join)
     return data
@@ -98,4 +100,5 @@ def train_val_split(data):
     return train_data, val_data
 
 if __name__=="__main__":
-    get_example_sents('../data/train_clean.csv',50)
+    data = pd.read_csv('../data/train_clean.csv')
+    exclude_sents(data)
