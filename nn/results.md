@@ -283,3 +283,6 @@
 - **Observations:**
     - Would like to observe more epochs, more regularization. Dropout?
     - Need to start augmenting data, playing around with dense layer inputs
+
+### TODO:
+- Use LIME (open-source on github) to visualize weird classifications on sentences
