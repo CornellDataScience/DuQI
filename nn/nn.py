@@ -152,20 +152,25 @@ class Model:
                                    input_length=c.SENT_LEN))
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
-                             activation='tanh',                 # relu explodes
+                             activation='tanh', # relu explodes, maybe test grad clipping/elu?
                              kernel_regularizer=k.regularizers.l2(0.0001),
                              recurrent_regularizer=k.regularizers.l2(0.0001),
                              bias_regularizer=k.regularizers.l2(0.0001),
-                             implementation=2))                 # better GPU performance
+                             implementation=2)) # better GPU performance
         gru1_out = gru(input1)
         gru2_out = gru(input2)
 
-        #TODO: add additional features to concatenated feature vector
-        grus_out = k.layers.concatenate([gru1_out, gru2_out])               # concatenate
-        dense1_out = k.layers.Dense(100)(grus_out)                          # dense
-        norm1_out = k.layers.BatchNormalization()(dense1_out)               # batch norm
-        active1_out = k.layers.Activation('relu')(norm1_out)                # relu
-        out = k.layers.Dense(2, activation="softmax")(active1_out)          # dense softmax
+        synth_feat1 = k.layers.subtract([gru1_out, gru2_out])
+        synth_feat2 = k.layers.multiply([gru1_out, gru2_out])
+        grus_out = k.layers.concatenate([gru1_out, gru2_out, synth_feat1, synth_feat2])
+        dense1_out = k.layers.Dense(100,
+                                    kernel_regularizer=k.regularizers.l2(0.0001),
+                                    bias_regularizer=k.regularizers.l2(0.0001))(grus_out)
+        norm1_out = k.layers.BatchNormalization()(dense1_out)
+        active1_out = k.layers.Activation('relu')(norm1_out)
+        out = k.layers.Dense(2, activation="softmax",
+                                kernel_regularizer=k.regularizers.l2(0.0001),
+                                bias_regularizer=k.regularizers.l2(0.0001))(active1_out)
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
@@ -181,7 +186,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    # m.train_model(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
-    m.load_pretrained(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
-    print(m.is_dup('is the sky blue?','is it true that the sky is blue?'))
-    # m.evaluate_preds()
+    m.train_model(model_name='glove_gru3_v2.h5',model_func=m.gru_similarity_model)
+    # m.load_pretrained(model_name='glove_gru3_v2.h5',model_func=m.gru_similarity_model)
+    m.evaluate_preds()

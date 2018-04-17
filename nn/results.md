@@ -283,3 +283,35 @@
 - **Observations:**
     - Would like to observe more epochs, more regularization. Dropout?
     - Need to start augmenting data, playing around with dense layer inputs
+
+### (4-16) glove_gru3_v2.h5
+- Notes
+    - Added L2 reg to dense layers
+    - Added q1-q2, q1*q2 similarity features
+- tr_acc: 0.9704
+- tr_f1: 0.9610
+- val_acc: 0.8484
+- val_f1: 0.8038
+    - loss: 0.4910 - acc: 0.7830 - val_loss: 0.4265 - val_acc: 0.8196
+    - loss: 0.3619 - acc: 0.8543 - val_loss: 0.3907 - val_acc: 0.8414
+    - loss: 0.2924 - acc: 0.8899 - val_loss: 0.3949 - val_acc: 0.8486
+    - loss: 0.2483 - acc: 0.9111 - val_loss: 0.4132 - val_acc: 0.8482
+    - loss: 0.2159 - acc: 0.9268 - val_loss: 0.4438 - val_acc: 0.8514
+    - loss: 0.1920 - acc: 0.9379 - val_loss: 0.4698 - val_acc: 0.8532
+    - loss: 0.1735 - acc: 0.9465 - val_loss: 0.5016 - val_acc: 0.8537
+    - loss: 0.1584 - acc: 0.9536 - val_loss: 0.5451 - val_acc: 0.8508
+    - loss: 0.1466 - acc: 0.9592 - val_loss: 0.5804 - val_acc: 0.8506
+    - loss: 0.1366 - acc: 0.9635 - val_loss: 0.6143 - val_acc: 0.8484
+- **Observations:**
+    - Not a huge improvement, expect that similarity features will show use after data augmentation
+
+
+### Experiments TODO:
+- Keras masking layer to avoid initialization effects
+- Sentence exclusion length tweaking
+- Twitter GloVe
+- Data augmentation
+    - Flip Q1-Q2 order
+    - Match unique questions with themselves
+- Lower dropout values (0.15/0.2)
+- Attention mechanism
