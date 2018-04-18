@@ -1,10 +1,14 @@
+
+body {
+	font-family: "Times New Roman", Times, serif;
+}
 .head {
 	min-height: 0px;
 	width: 100%;
 	display: block;	
 	padding: 0px;
 	text-align: center;
-	margin:0px;
+	margin:0 auto;
 }
 .content {
 	min-height: 0px;
@@ -14,9 +18,51 @@
 	text-align: center;
 	margin:0px;
 }
-.forms {
-	display: inline-block;
+.content {
+	margin-top: 5%;
 }
 .print_result {
 	display: inline-block;
+}
+.form_field {
+	margin-top: 3%; 
+}
+.form_button {
+	margin-top: 4%;
+}
+form {
+	margin: 0 auto;
+	width: 60%;
+}
+input {
+	text-align: center;
+}
+#submit { 
+	margin: 0 auto;
+	height: 30px;
+	width: 30%;
+	font-size: 30px;
+}
+.question_box{
+	height: 20px;
+	width: 100%;
+	font-size: 15px;
+}
+
+p {
+	margin: 0 auto;
+	width: 55%;
+}
+
+.result_title {
+	margin: 0 auto;
+	text-decoration: underline;
+}
+
+.result_answer {
+	margin: 0 auto;
+	font-weight: normal;
+}
+.question_result {
+	margin-top : 20%;
 }

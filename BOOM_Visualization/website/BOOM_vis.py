@@ -17,7 +17,7 @@ def classifier():
     q1 = request.form['q1']
     q2 = request.form['q2']
     result = m.is_dup(q1, q2)
-    result_str = "These questions are duplicates." if round(result) == 1 else "These questions are unique."
+    result_str = "Duplicates" if round(result) == 1 else "Not Duplicates"
     return render_template('classifier.html', q1 = q1, q2 = q2, result = result, result_string = result_str)
 
 @app.route('/')
