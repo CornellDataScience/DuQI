@@ -25,7 +25,6 @@ class Model:
         data = exclude_sents(data)
         # randomly shuffling data and separating into train/val data
         train_data, val_data = train_val_split(data)
-        print(len(train_data)+len(val_data))
         print("Augmenting data...")
         # data augmentation - Q1/Q2 swap
         tr_swap = train_data.copy()
@@ -53,8 +52,6 @@ class Model:
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
         val_q1_str, val_q2_str = val_data['question1'].values, val_data['question2'].values
-
-        print(len(train_data)+len(val_data))
 
         print('Fitting tokenizer...')
         self.tokenizer = Tokenizer(filters="", oov_token='!UNK!')
@@ -182,8 +179,7 @@ class Model:
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
         gru.add(k.layers.Masking(mask_value=0., input_shape=(c.SENT_LEN, c.WORD_EMBED_SIZE)))
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
-                             dropout=0.3,
-                             recurrent_dropout=0.3,
+                             dropout=0.2,
                              activation='tanh', # relu explodes, maybe test grad clipping/elu?
                              kernel_regularizer=k.regularizers.l2(0.0001),
                              recurrent_regularizer=k.regularizers.l2(0.0001),
@@ -195,7 +191,7 @@ class Model:
         synth_feat1 = k.layers.subtract([gru1_out, gru2_out])
         synth_feat2 = k.layers.multiply([gru1_out, gru2_out])
         grus_out = k.layers.concatenate([gru1_out, gru2_out, synth_feat1, synth_feat2])
-        dense1_out = k.layers.Dense(c.SENT_EMBED_SIZE,
+        dense1_out = k.layers.Dense(100,
                                     kernel_regularizer=k.regularizers.l2(0.0001),
                                     bias_regularizer=k.regularizers.l2(0.0001))(grus_out)
         norm1_out = k.layers.BatchNormalization()(dense1_out)

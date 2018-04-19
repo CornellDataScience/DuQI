@@ -292,6 +292,7 @@
 - tr_f1: 0.9610
 - val_acc: 0.8484
 - val_f1: 0.8038
+- Loss per epoch
     - loss: 0.4910 - acc: 0.7830 - val_loss: 0.4265 - val_acc: 0.8196
     - loss: 0.3619 - acc: 0.8543 - val_loss: 0.3907 - val_acc: 0.8414
     - loss: 0.2924 - acc: 0.8899 - val_loss: 0.3949 - val_acc: 0.8486
@@ -311,11 +312,26 @@
     - Augmented data by flipping question order, matching unique questions with themselves
         - 403,069 question pairs -> 1,388,474 question pairs
     - Sentence embedding size 300 (from 100)
-    - Dense layer size = sentence embedding size
-    - Dropout, recurrent_dropout = 0.3
+    - dropout = 0.2 (recurrent dropout = 0)
+- tr_acc: 0.9736
+- tr_f1: 0.9793
+- val_acc: 0.9125
+- val_f1: 0.9356
+- Loss per epoch
+    - loss: 0.3686 - acc: 0.8696 - val_loss: 0.2996 - val_acc: 0.8978
+    - loss: 0.2534 - acc: 0.9176 - val_loss: 0.2708 - val_acc: 0.9115
+    - loss: 0.2101 - acc: 0.9344 - val_loss: 0.2855 - val_acc: 0.9077
+    - loss: 0.1844 - acc: 0.9445 - val_loss: 0.2972 - val_acc: 0.9148
+    - loss: 0.1670 - acc: 0.9515 - val_loss: 0.2908 - val_acc: 0.9166
+    - loss: 0.1539 - acc: 0.9568 - val_loss: 0.3369 - val_acc: 0.9126
+    - loss: 0.1434 - acc: 0.9609 - val_loss: 0.3279 - val_acc: 0.9118
+    - loss: 0.1353 - acc: 0.9640 - val_loss: 0.3129 - val_acc: 0.9145
+    - loss: 0.1285 - acc: 0.9667 - val_loss: 0.3149 - val_acc: 0.9185
+    - loss: 0.1222 - acc: 0.9689 - val_loss: 0.3489 - val_acc: 0.9125
 
 ### Experiments TODO:
 - Twitter GloVe
+- Use non-recurrent dropout only
 - Use excluded sents as additional validation metric
 - Use LIME (open-source on github) to visualize weird classifications on sentences
 - Triplet loss - maximize distance between non duplicates, minimize between duplicates (FaceNet)
