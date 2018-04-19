@@ -3,3 +3,4 @@ models/
 lang_models/
 .vscode/
 nn/logs/
+*.pyc

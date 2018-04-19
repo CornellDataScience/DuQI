@@ -305,15 +305,18 @@
 - **Observations:**
     - Not a huge improvement, expect that similarity features will show use after data augmentation
 
+### (4-18) glove_gru4_v1.h5
+- Notes
+    - Added masking layer before GRU
+    - Augmented data by flipping question order, matching unique questions with themselves
+        - 403,069 question pairs -> 1,388,474 question pairs
+    - Sentence embedding size 300 (from 100)
+    - Dense layer size = sentence embedding size
+    - Dropout, recurrent_dropout = 0.3
 
 ### Experiments TODO:
-- Keras masking layer to avoid initialization effects
-- Sentence exclusion length tweaking
 - Twitter GloVe
-- Data augmentation
-    - Flip Q1-Q2 order
-    - Match unique questions with themselves
-- Lower dropout values (0.15/0.2)
+- Use excluded sents as additional validation metric
 - Use LIME (open-source on github) to visualize weird classifications on sentences
 - Triplet loss - maximize distance between non duplicates, minimize between duplicates (FaceNet)
 - Attention mechanism

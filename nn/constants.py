@@ -4,12 +4,13 @@
 NUM_EPOCHS = 10
 BATCH_SIZE = 256
 WORD_EMBED_SIZE = 300           # size of word embedding
-SENT_EMBED_SIZE = 100           # size of sentence embedding
+SENT_EMBED_SIZE = 300           # size of sentence embedding
 SENT_LEN = 50                   # fixed length of sentence
 SENT_INCLUSION_MIN = 3          # shorter sentences removed from training data
 SENT_INCLUSION_MAX = SENT_LEN   # longer sentences removed from training data
 
 # GloVe
+# GLOVE_FILEPATH = '../lang_models/glove.twitter.27B.'+str(WORD_EMBED_SIZE)+'d.txt'
 GLOVE_FILEPATH = '../lang_models/glove.6B.'+str(WORD_EMBED_SIZE)+'d.txt'
 
 # Word2Vec

@@ -12,6 +12,8 @@ from sklearn.metrics import accuracy_score, f1_score
 import constants as c
 from preprocessing import exclude_sents, train_val_split, clean_string
 
+import pdb
+
 class Model:
     def __init__(self):
         """Arguments: 
@@ -23,13 +25,40 @@ class Model:
         data = exclude_sents(data)
         # randomly shuffling data and separating into train/val data
         train_data, val_data = train_val_split(data)
+        print(len(train_data)+len(val_data))
+        print("Augmenting data...")
+        # data augmentation - Q1/Q2 swap
+        tr_swap = train_data.copy()
+        tr_swap['question1'],tr_swap['question2']=tr_swap['question2'].copy(),tr_swap['question1'].copy()
+        train_data = train_data.append(tr_swap)
+        val_swap = val_data.copy()
+        val_swap['question1'],val_swap['question2']=val_swap['question2'].copy(),val_swap['question1'].copy()
+        val_data = val_data.append(val_swap)
+        # data augmentation - same question is duplicate of itself
+        tr_selfdup = pd.DataFrame(columns=data.columns)
+        tr_unique = train_data['question1'].unique()
+        tr_selfdup['question1'] = tr_unique
+        tr_selfdup['question2'] = tr_unique
+        tr_selfdup['is_duplicate'] = [1]*len(tr_unique)
+        train_data = train_data.append(tr_selfdup)
+        val_selfdup = pd.DataFrame(columns=data.columns)
+        val_unique = val_data['question1'].unique()
+        val_selfdup['question1'] = val_unique
+        val_selfdup['question2'] = val_unique
+        val_selfdup['is_duplicate'] = [1]*len(val_unique)
+        val_data = val_data.append(val_selfdup)
+        # re-number indices
+        train_data.index = range(len(train_data))
+        val_data.index = range(len(val_data))
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
         val_q1_str, val_q2_str = val_data['question1'].values, val_data['question2'].values
 
+        print(len(train_data)+len(val_data))
+
         print('Fitting tokenizer...')
         self.tokenizer = Tokenizer(filters="", oov_token='!UNK!')
-        self.tokenizer.fit_on_texts(np.append(train_q1_str, train_q2_str))
+        self.tokenizer.fit_on_texts(train_data['question1'].values) #only Q1 since swap appended
         self.glove = self.glove_dict()
         unk_embed = self.produce_unk_embed()
 
@@ -151,7 +180,10 @@ class Model:
                                    embeddings_initializer=embed_matrix_init,
                                    input_length=c.SENT_LEN))
         # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
+        gru.add(k.layers.Masking(mask_value=0., input_shape=(c.SENT_LEN, c.WORD_EMBED_SIZE)))
         gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
+                             dropout=0.3,
+                             recurrent_dropout=0.3,
                              activation='tanh', # relu explodes, maybe test grad clipping/elu?
                              kernel_regularizer=k.regularizers.l2(0.0001),
                              recurrent_regularizer=k.regularizers.l2(0.0001),
@@ -163,7 +195,7 @@ class Model:
         synth_feat1 = k.layers.subtract([gru1_out, gru2_out])
         synth_feat2 = k.layers.multiply([gru1_out, gru2_out])
         grus_out = k.layers.concatenate([gru1_out, gru2_out, synth_feat1, synth_feat2])
-        dense1_out = k.layers.Dense(100,
+        dense1_out = k.layers.Dense(c.SENT_EMBED_SIZE,
                                     kernel_regularizer=k.regularizers.l2(0.0001),
                                     bias_regularizer=k.regularizers.l2(0.0001))(grus_out)
         norm1_out = k.layers.BatchNormalization()(dense1_out)
@@ -186,6 +218,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='glove_gru3_v2.h5',model_func=m.gru_similarity_model)
+    m.train_model(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
     # m.load_pretrained(model_name='glove_gru3_v2.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()
