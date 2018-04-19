@@ -286,3 +286,4 @@
 
 ### TODO:
 - Use LIME (open-source on github) to visualize weird classifications on sentences
+- Triplet loss - maximize distance between non duplicates, minimize between duplicates (FaceNet)
