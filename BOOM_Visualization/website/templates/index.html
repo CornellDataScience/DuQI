@@ -3,26 +3,26 @@
 <!-- BOOM Visualization - Brandon Kates (bjk224) -->
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="css/styles.css">
-	<title></title>
+	<link rel="stylesheet" type="text/css" href="../static/css/styles.css">
+	<title> DuQI - Duplicate Question Identification </title>
 </head>
 <body>
+	<div class="head">
+		<h2> DuQI - Duplicate Question Identification </h2>
+		<p> This tool determines if the two questions input below are duplicates. Duplicate questions have the same answer. </p>
+	</div>
 	<div class="content">
-		<div class="forms">
-			<form method='POST', action="/classifier">
-				<div class="form_field">
-					<label> Question 1: </label>
-					<input type="text" name="q1" maxLength ="1000">
-				</div>
-				<div class="form_field">
-					<label> Question 2: </label>
-					<input type="text" name="q2" maxLength ="1000">
-				</div>
-				<div class="form_field">
-					<input id="submit" type="submit" name="Submit" value="Check if duplicates">
-				</div>
-			</form>
-		</div>
+		<form method='POST', action="/classifier">
+			<div class="form_field">
+				<input class="question_box" type="text" name="q1" maxLength ="1000" placeholder="Question 1">
+			</div>
+			<div class="form_field">
+				<input class="question_box" type="text" name="q2" maxLength ="1000" placeholder="Question 2">
+			</div>
+			<div class="form_field form_button">
+				<input id="submit" type="submit" name="Submit" value="CHECK">
+			</div>
+		</form>
 	</div>
 </body>
 </html>

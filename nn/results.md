@@ -314,4 +314,6 @@
     - Flip Q1-Q2 order
     - Match unique questions with themselves
 - Lower dropout values (0.15/0.2)
+- Use LIME (open-source on github) to visualize weird classifications on sentences
+- Triplet loss - maximize distance between non duplicates, minimize between duplicates (FaceNet)
 - Attention mechanism

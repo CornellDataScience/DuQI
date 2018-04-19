@@ -3,22 +3,38 @@
 <!-- BOOM Visualization - Brandon Kates (bjk224) -->
 <head>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<link rel="stylesheet" type="text/css" href="../static/css/styles.css">
 	<title></title>
 </head>
 <body>
+	<div class="head">
+		<h2> DuQI - Duplicate Question Identification </h2>
+		<p> Your results are displayed below. </p>
+	</div>
 	<div class="content">
-		<div class="forms">
-			<form action="/">
-    			<input type = "submit" value= "Check More Questions" />
-			</form>
-		</div>
 		<div class="print_result">
-			<h3> Question 1: {{q1}} </h3>
-			<h3> Question 2: {{q2}} </h3>
-		    <h3> Result: {{result}} </h3>
-		    <h3> Result: {{result_string}} </h3>
-		</div> 
+			<div class= "question_result">
+				<h3 class= "result_title"> Question 1 </h3>
+				<h3 class= "result_answer"> {{q1}} </h3>
+			</div>
+			<div class= "question_result">
+				<h3 class= "result_title"> Question 2 </h3>
+				<h3 class= "result_answer"> {{q2}} </h3>
+			</div>
+			<div class= "question_result">
+		    	<h3 class= "result_title"> Score </h3>
+		    	<h3 class= "result_answer"> {{result}} </h3>
+		    </div>
+			<div class= "question_result">
+		    	<h3 class= "result_title"> Result </h3>
+		    	<h3 class= "result_answer"> {{result_string}} </h3>
+		    </div>
+		</div>
+		<div class="form_field">
+			<form action="/">
+    			<input type = "submit" value= "BACK" />
+			</form>
+		</div>		
 	</div>
 </body>
 </html>
