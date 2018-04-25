@@ -10,7 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score, f1_score
 # files
 import constants as c
-from preprocessing import exclude_sents, train_val_split, clean_string
+from preprocessing import augmented, clean_string
 
 import pdb
 
@@ -20,42 +20,18 @@ class Model:
            - model_name: name of the model to load/save to
            - use_pretrained: if True, then loading model from model_name, else training
         """
-        data = pd.read_csv('../data/train_clean.csv')
-        # dropping low-length and high-length sentences
-        data = exclude_sents(data)
-        # randomly shuffling data and separating into train/val data
-        train_data, val_data = train_val_split(data)
-        print("Augmenting data...")
-        # data augmentation - Q1/Q2 swap
-        tr_swap = train_data.copy()
-        tr_swap['question1'],tr_swap['question2']=tr_swap['question2'].copy(),tr_swap['question1'].copy()
-        train_data = train_data.append(tr_swap)
-        val_swap = val_data.copy()
-        val_swap['question1'],val_swap['question2']=val_swap['question2'].copy(),val_swap['question1'].copy()
-        val_data = val_data.append(val_swap)
-        # data augmentation - same question is duplicate of itself
-        tr_selfdup = pd.DataFrame(columns=data.columns)
-        tr_unique = train_data['question1'].unique()
-        tr_selfdup['question1'] = tr_unique
-        tr_selfdup['question2'] = tr_unique
-        tr_selfdup['is_duplicate'] = [1]*len(tr_unique)
-        train_data = train_data.append(tr_selfdup)
-        val_selfdup = pd.DataFrame(columns=data.columns)
-        val_unique = val_data['question1'].unique()
-        val_selfdup['question1'] = val_unique
-        val_selfdup['question2'] = val_unique
-        val_selfdup['is_duplicate'] = [1]*len(val_unique)
-        val_data = val_data.append(val_selfdup)
-        # re-number indices
-        train_data.index = range(len(train_data))
-        val_data.index = range(len(val_data))
+
+        csv_file = '../data/train_clean.csv'
+        train_data, val_data = augmented(csv_file, method='AUG_SEPARATE')
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
+        train_labels = train_data['is_duplicate'].values
         val_q1_str, val_q2_str = val_data['question1'].values, val_data['question2'].values
+        val_labels = val_data['is_duplicate'].values
 
         print('Fitting tokenizer...')
         self.tokenizer = Tokenizer(filters="", oov_token='!UNK!')
-        self.tokenizer.fit_on_texts(train_data['question1'].values) #only Q1 since swap appended
+        self.tokenizer.fit_on_texts(np.concatenate([train_q1_str,train_q2_str]))
         self.glove = self.glove_dict()
         unk_embed = self.produce_unk_embed()
 
@@ -65,8 +41,7 @@ class Model:
         # one-hotting the labels
         self.y_train = np.zeros((len(train_q1_str),2))
         self.y_train[:,1] = 1
-        y_train_labels = train_data['is_duplicate'].values
-        self.y_train[y_train_labels==0] = np.array([1,0])
+        self.y_train[train_labels==0] = np.array([1,0])
 
         print('Converting validation strings to int arrays...')
         self.x_val_q1 = pad_sequences(self.tokenizer.texts_to_sequences(val_q1_str), maxlen=c.SENT_LEN)
@@ -74,8 +49,7 @@ class Model:
         # one-hotting the labels
         self.y_val = np.zeros((len(val_q1_str),2))
         self.y_val[:,1] = 1
-        y_val_labels = val_data['is_duplicate'].values
-        self.y_val[y_val_labels==0] = np.array([1,0])
+        self.y_val[val_labels==0] = np.array([1,0])
 
         print('Creating embeddings matrix...')
         num_words = len(self.tokenizer.word_index)+2    # 0 index is reserved, oov token appended
