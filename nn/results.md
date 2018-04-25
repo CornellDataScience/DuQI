@@ -330,8 +330,9 @@
     - loss: 0.1222 - acc: 0.9689 - val_loss: 0.3489 - val_acc: 0.9125
 
 ### Experiments TODO:
+- Check that AUG_SEPARATE has same accuracy/f1 as before
+- Handle long sentences
 - Twitter GloVe
-- Use non-recurrent dropout only
 - Use excluded sents as additional validation metric
 - Use LIME (open-source on github) to visualize weird classifications on sentences
 - Triplet loss - maximize distance between non duplicates, minimize between duplicates (FaceNet)

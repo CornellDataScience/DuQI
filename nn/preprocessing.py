@@ -92,6 +92,8 @@ def exclude_sents(data):
     return data
 
 def train_val_split(data):
+    """Shuffles and splits the data into training and validation sets.
+    """
     shuffled_data = data.sample(n=len(data),random_state=27)
     val_size = 0.2
     val_denom = int(1/val_size)
@@ -99,66 +101,47 @@ def train_val_split(data):
     val_data = shuffled_data[:len(shuffled_data)//val_denom+1]
     return train_data, val_data
 
+def augment_single_data(data):
+    """- data: pd.DataFrame
+    """
+    # data augmentation - Q1/Q2 swap
+    swap = data.copy()
+    swap['question1'],swap['question2']=swap['question2'].copy(),swap['question1'].copy()
+    data = data.append(swap)
+    # data augmentation - same question is duplicate of itself
+    selfdup = pd.DataFrame(columns=data.columns)
+    unique = data['question1'].unique() # only Q1 because already did Q1/Q2 swap augmentation
+    selfdup['question1'], selfdup['question2'] = unique, unique
+    selfdup['is_duplicate'] = [1]*len(unique)
+    data = data.append(selfdup)
+    # re-number indices
+    data.index = range(len(data))
+    # drop duplicate pairs
+    data = data.drop_duplicates(subset=['question1','question2'])
+    return data
+
 def augmented(filepath,*,method):
     """Methods:
         - AUG_POOLED: augment, then train_val_split
         - AUG_SEPARATE: train_val_split, then augment each
         - AUG_TRAIN: only augment training data
     """
+    print("Augmenting data...")
+    data = pd.read_csv(filepath)
+    data = exclude_sents(data)
     if method=='AUG_SEPARATE':
-        data = pd.read_csv(filepath)
-        data = exclude_sents(data) # dropping low-length and high-length sentences
-        train_data, val_data = train_val_split(data) # shuffling and splitting into train/val
-        print("Augmenting data...")
-        # data augmentation - Q1/Q2 swap
-        tr_swap = train_data.copy()
-        tr_swap['question1'],tr_swap['question2']=tr_swap['question2'].copy(),tr_swap['question1'].copy()
-        train_data = train_data.append(tr_swap)
-        val_swap = val_data.copy()
-        val_swap['question1'],val_swap['question2']=val_swap['question2'].copy(),val_swap['question1'].copy()
-        val_data = val_data.append(val_swap)
-        # data augmentation - same question is duplicate of itself
-        tr_selfdup = pd.DataFrame(columns=data.columns)
-        tr_unique = train_data['question1'].unique()
-        tr_selfdup['question1'], tr_selfdup['question2'] = tr_unique, tr_unique
-        tr_selfdup['is_duplicate'] = [1]*len(tr_unique)
-        train_data = train_data.append(tr_selfdup)
-        val_selfdup = pd.DataFrame(columns=data.columns)
-        val_unique = val_data['question1'].unique()
-        val_selfdup['question1'], val_selfdup['question2'] = val_unique, val_unique
-        val_selfdup['is_duplicate'] = [1]*len(val_unique)
-        val_data = val_data.append(val_selfdup)
-        # re-number indices
-        train_data.index = range(len(train_data))
-        val_data.index = range(len(val_data))
-        # drop duplicates within each set
-        train_data = train_data.drop_duplicates(subset=['question1','question2'])
-        val_data = val_data.drop_duplicates(subset=['question1','question2'])
+        train_data, val_data = train_val_split(data)
+        train_data = augment_single_data(train_data)
+        val_data = augment_single_data(val_data)
         return train_data, val_data
-
     if method=='AUG_POOLED':
-        data = pd.read_csv(filepath)
-        data = exclude_sents(data) # dropping low-length and high-length sentences
-
-        print("Augmenting data...")
-        # data augmentation - Q1/Q2 swap
-        swap = data.copy()
-        swap['question1'],swap['question2']=swap['question2'].copy(),swap['question1'].copy()
-        data = data.append(swap)
-        # data augmentation - same question is duplicate of itself
-        selfdup = pd.DataFrame(columns=data.columns)
-        unique = data['question1'].unique() # only Q1 because already did Q1/Q2 swap augmentation
-        selfdup['question1'], selfdup['question2'] = unique, unique
-        selfdup['is_duplicate'] = [1]*len(unique)
-        data = data.append(selfdup)
-        # re-number indices
-        data.index = range(len(data))
-        # drop duplicate pairs
-        data = data.drop_duplicates(subset=['question1','question2'])
-
-        train_data, val_data = train_val_split(data) # shuffling and splitting into train/val
+        data = augment_single_data(data)
+        train_data, val_data = train_val_split(data)
         return train_data, val_data
-
+    if method=='AUG_TRAIN':
+        train_data, val_data = train_val_split(data)
+        train_data = augment_single_data(train_data)
+        return train_data, val_data 
 
 if __name__=="__main__":
     data = pd.read_csv('../data/train_clean.csv')

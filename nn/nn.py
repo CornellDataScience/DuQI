@@ -20,8 +20,8 @@ class Model:
            - model_name: name of the model to load/save to
            - use_pretrained: if True, then loading model from model_name, else training
         """
-
         csv_file = '../data/train_clean.csv'
+        # data augmentation
         train_data, val_data = augmented(csv_file, method='AUG_SEPARATE')
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
@@ -188,6 +188,6 @@ class Model:
 
 if __name__=="__main__":
     m = Model()
-    m.train_model(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
-    # m.load_pretrained(model_name='glove_gru3_v2.h5',model_func=m.gru_similarity_model)
+    # m.train_model(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
+    m.load_pretrained(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
     m.evaluate_preds()
