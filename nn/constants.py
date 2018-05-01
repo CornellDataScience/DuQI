@@ -8,6 +8,7 @@ SENT_EMBED_SIZE = 300           # size of sentence embedding
 SENT_LEN = 50                   # fixed length of sentence
 SENT_INCLUSION_MIN = 3          # shorter sentences removed from training data
 SENT_INCLUSION_MAX = SENT_LEN   # longer sentences removed from training data
+NUM_FOLDS = 5
 
 # GloVe
 # GLOVE_FILEPATH = '../lang_models/glove.twitter.27B.'+str(WORD_EMBED_SIZE)+'d.txt'

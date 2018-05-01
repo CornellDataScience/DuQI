@@ -91,14 +91,14 @@ def exclude_sents(data):
     data['question2'] = data['question2'].apply(' '.join)
     return data
 
-def train_val_split(data):
+def train_val_split(data,fold_num):
     """Shuffles and splits the data into training and validation sets.
     """
     shuffled_data = data.sample(n=len(data),random_state=27)
-    val_size = 0.2
-    val_denom = int(1/val_size)
-    train_data = shuffled_data[len(shuffled_data)//val_denom+1:]
-    val_data = shuffled_data[:len(shuffled_data)//val_denom+1]
+    folds_list = np.array_split(shuffled_data,c.NUM_FOLDS)
+    val_data = folds_list[fold_num]
+    del folds_list[fold_num]
+    train_data = pd.concat(folds_list)
     return train_data, val_data
 
 def augment_single_data(data):
@@ -120,7 +120,7 @@ def augment_single_data(data):
     data = data.drop_duplicates(subset=['question1','question2'])
     return data
 
-def augmented(filepath,*,method):
+def augmented(filepath,*,method,fold_num):
     """Methods:
         - AUG_POOLED: augment, then train_val_split
         - AUG_SEPARATE: train_val_split, then augment each
@@ -130,19 +130,22 @@ def augmented(filepath,*,method):
     data = pd.read_csv(filepath)
     data = exclude_sents(data)
     if method=='AUG_SEPARATE':
-        train_data, val_data = train_val_split(data)
+        train_data, val_data = train_val_split(data,fold_num)
         train_data = augment_single_data(train_data)
         val_data = augment_single_data(val_data)
         return train_data, val_data
     if method=='AUG_POOLED':
         data = augment_single_data(data)
-        train_data, val_data = train_val_split(data)
+        train_data, val_data = train_val_split(data,fold_num)
         return train_data, val_data
     if method=='AUG_TRAIN':
-        train_data, val_data = train_val_split(data)
+        train_data, val_data = train_val_split(data,fold_num)
         train_data = augment_single_data(train_data)
-        return train_data, val_data 
+        return train_data, val_data
 
 if __name__=="__main__":
-    data = pd.read_csv('../data/train_clean.csv')
-    exclude_sents(data)
+    train,val = augmented('../data/train_clean.csv',method='AUG_POOLED')
+    print ('train')
+    print(train.groupby('is_duplicate').count())
+    print('val')
+    print(val.groupby('is_duplicate').count())

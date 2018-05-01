@@ -15,14 +15,17 @@ from preprocessing import augmented, clean_string
 import pdb
 
 class Model:
-    def __init__(self):
+    def __init__(self,*,fold_num):
         """Arguments: 
            - model_name: name of the model to load/save to
            - use_pretrained: if True, then loading model from model_name, else training
         """
         csv_file = '../data/train_clean.csv'
         # data augmentation
-        train_data, val_data = augmented(csv_file, method='AUG_SEPARATE')
+        train_data, val_data = augmented(csv_file, method='AUG_SEPARATE',fold_num=fold_num)
+        #TODO: get rid of this
+        train_data=train_data[:100]
+        val_data=val_data[:20]
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
         train_labels = train_data['is_duplicate'].values
@@ -102,7 +105,7 @@ class Model:
                     callbacks=[tboard])
 
         print('Model trained.\nSaving model...')
-        self.model.save_weights('../models/'+model_name)
+        self.model.save('../models/'+model_name)
         print('Model saved to models/'+model_name)
     
     def is_dup(self, q1, q2):
@@ -129,6 +132,7 @@ class Model:
         acc_val, f1_val = self.compute_accuracy(pred_val, self.y_val)
         print('* Accuracy on validation set: %0.4f' % acc_val)
         print('* F1 score on validation set: %0.4f' % f1_val)
+        return np.array([acc_train,f1_train,acc_val,f1_val])
 
     def produce_unk_embed(self):
         """Returns: unknown token embedding - the average embedding of every GloVe word
@@ -187,7 +191,18 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    m = Model()
-    # m.train_model(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
-    m.load_pretrained(model_name='glove_gru4_v1.h5',model_func=m.gru_similarity_model)
-    m.evaluate_preds()
+    MODEL_NAME = 'gru_v5'
+    summary = np.zeros((c.NUM_FOLDS,4))
+    for i in range(c.NUM_FOLDS):
+        m = Model(fold_num=i)
+        m.train_model(model_name=MODEL_NAME+'_fold'+str(i)+'.h5',model_func=m.gru_similarity_model)
+        summary[i] = m.evaluate_preds()
+    pd_sum_cols = ['train_acc','train_f1','val_acc','val_f1']
+    pd_summary = pd.DataFrame(data=summary,index=np.arange(c.NUM_FOLDS),columns=pd_sum_cols)
+    pd_means = pd_summary.mean(axis=0)
+    print(pd_summary)
+    print(pd_means)
+    pd_summary.to_csv('../models/'+MODEL_NAME+'_stats.csv')
+
+
+    # m.load_pretrained(model_name='test.h5',model_func=m.gru_similarity_model)
