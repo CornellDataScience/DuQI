@@ -22,7 +22,7 @@ class Model:
         """
         csv_file = '../data/train_clean.csv'
         # data augmentation
-        train_data, val_data = augmented(csv_file, method='AUG_SEPARATE',fold_num=fold_num)
+        train_data, val_data = augmented(csv_file, method='AUG_POOLED',fold_num=fold_num)
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
         train_labels = train_data['is_duplicate'].values
@@ -102,7 +102,7 @@ class Model:
                     callbacks=[tboard])
 
         print('Model trained.\nSaving model...')
-        self.model.save('../models/'+model_name)
+        self.model.save_weights('../models/'+model_name)
         print('Model saved to models/'+model_name)
     
     def is_dup(self, q1, q2):
