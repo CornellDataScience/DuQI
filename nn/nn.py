@@ -23,9 +23,6 @@ class Model:
         csv_file = '../data/train_clean.csv'
         # data augmentation
         train_data, val_data = augmented(csv_file, method='AUG_SEPARATE',fold_num=fold_num)
-        #TODO: get rid of this
-        train_data=train_data[:100]
-        val_data=val_data[:20]
         # pd.Series to ndarray
         train_q1_str, train_q2_str = train_data['question1'].values, train_data['question2'].values
         train_labels = train_data['is_duplicate'].values
