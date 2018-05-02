@@ -4,9 +4,9 @@ import os
 sys.path.insert(0, "../../nn")
 from nn import Model
 os.chdir("../../nn")
-m = Model()
-m.load_pretrained(model_name='glove_gru3_v1.h5',model_func=m.gru_similarity_model)
-os.chdir("../BOOM_Visualization/website")
+m = Model(fold_num=0)
+m.load_pretrained(model_name='gru_v5_fold0.h5',model_func=m.gru_similarity_model)
+os.chdir("../vis_website/website")
 
 
 
