@@ -10,6 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from sklearn.metrics import accuracy_score, f1_score
 # files
 import constants as c
+from abs_layer import AbsLayer
 from preprocessing import augmented, clean_string
 
 import pdb
@@ -163,7 +164,8 @@ class Model:
         gru1_out = gru(input1)
         gru2_out = gru(input2)
 
-        synth_feat1 = k.layers.subtract([gru1_out, gru2_out])
+        synth_sub = k.layers.subtract([gru1_out, gru2_out])
+        synth_feat1 = AbsLayer()(synth_sub)
         synth_feat2 = k.layers.multiply([gru1_out, gru2_out])
         grus_out = k.layers.concatenate([gru1_out, gru2_out, synth_feat1, synth_feat2])
         dense1_out = k.layers.Dense(100,
@@ -188,7 +190,7 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    MODEL_NAME = 'gru_v5_augtrain'
+    MODEL_NAME = 'gru_v6_augtrain'
     summary = np.zeros((c.NUM_FOLDS,4))
     for i in range(c.NUM_FOLDS):
         m = Model(fold_num=i)
@@ -197,7 +199,7 @@ if __name__=="__main__":
     pd_sum_cols = ['train_acc','train_f1','val_acc','val_f1']
     pd_summary = pd.DataFrame(data=summary,index=np.arange(c.NUM_FOLDS),columns=pd_sum_cols)
     pd_means = pd_summary.mean(axis=0)
-    pd_summary.append(pd_means)
+    pd_summary.append(pd_means, ignore_index=True)
     print(pd_summary)
     pd_summary.to_csv('../models/'+MODEL_NAME+'_stats.csv')
 

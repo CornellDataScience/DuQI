@@ -332,11 +332,31 @@
 ### gru_v5
 - same as above
 - averages (5 folds, AUG_POOLED)
-    - train_acc    0.964360
-    - train_f1     0.971575
-    - val_acc      0.940135
-    - val_f1       0.952460
+    - train_acc     0.964360
+    - train_f1      0.971575
+    - val_acc       0.940135
+    - val_f1        0.952460
 - averages (5 folds, AUG_TRAIN)
+    - train_acc     0.9763
+    - train_f1      0.9812
+    - val_acc       0.8463
+    - val_f1        0.8001
+
+### gru_v5
+- same as above
+- averages (5 folds, AUG_POOLED)
+    - train_acc     0.964360
+    - train_f1      0.971575
+    - val_acc       0.940135
+    - val_f1        0.952460
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.9763
+    - train_f1      0.9812
+    - val_acc       0.8463
+    - val_f1        0.8001
+
+### gru_v6
+- feature concatenation - absolute value of subtraction
 
 ### Experiments TODO:
 - Handle long sentences
