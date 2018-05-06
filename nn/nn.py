@@ -199,7 +199,7 @@ if __name__=="__main__":
     pd_sum_cols = ['train_acc','train_f1','val_acc','val_f1']
     pd_summary = pd.DataFrame(data=summary,index=np.arange(c.NUM_FOLDS),columns=pd_sum_cols)
     pd_means = pd_summary.mean(axis=0)
-    pd_summary.append(pd_means, ignore_index=True)
+    pd_summary = pd_summary.append(pd_means, ignore_index=True)
     print(pd_summary)
     pd_summary.to_csv('../models/'+MODEL_NAME+'_stats.csv')
 

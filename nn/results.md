@@ -357,6 +357,7 @@
 
 ### Experiments TODO:
 - Check TensorBoard plots
+- Test smaller word embedding (100?)
 - Handle long sentences
 - Use excluded sents as additional validation metric
 - Attention mechanism
