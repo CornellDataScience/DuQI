@@ -342,23 +342,21 @@
     - val_acc       0.8463
     - val_f1        0.8001
 
-### gru_v5
-- same as above
-- averages (5 folds, AUG_POOLED)
-    - train_acc     0.964360
-    - train_f1      0.971575
-    - val_acc       0.940135
-    - val_f1        0.952460
-- averages (5 folds, AUG_TRAIN)
-    - train_acc     0.9763
-    - train_f1      0.9812
-    - val_acc       0.8463
-    - val_f1        0.8001
-
 ### gru_v6
 - feature concatenation - absolute value of subtraction
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.965692564
+    - train_f1      0.973218141
+    - val_acc       0.833504956
+    - val_f1        0.799949341
+
+### gru_v7
+- only changed hyperparams
+    - batch size = 512 (from 256)
+    - epochs = 30 (from 10)
 
 ### Experiments TODO:
+- Check TensorBoard plots
 - Handle long sentences
 - Use excluded sents as additional validation metric
 - Attention mechanism

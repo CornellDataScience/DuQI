@@ -190,7 +190,7 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    MODEL_NAME = 'gru_v6_augtrain'
+    MODEL_NAME = 'gru_v7_augtrain'
     summary = np.zeros((c.NUM_FOLDS,4))
     for i in range(c.NUM_FOLDS):
         m = Model(fold_num=i)
