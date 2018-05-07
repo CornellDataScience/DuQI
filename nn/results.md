@@ -329,10 +329,40 @@
     - loss: 0.1285 - acc: 0.9667 - val_loss: 0.3149 - val_acc: 0.9185
     - loss: 0.1222 - acc: 0.9689 - val_loss: 0.3489 - val_acc: 0.9125
 
-## gru_v5
-- 
+### gru_v5
+- same as above
+- averages (5 folds, AUG_POOLED)
+    - train_acc     0.964360
+    - train_f1      0.971575
+    - val_acc       0.940135
+    - val_f1        0.952460
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.9763
+    - train_f1      0.9812
+    - val_acc       0.8463
+    - val_f1        0.8001
+
+### gru_v6
+- feature concatenation - absolute value of subtraction
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.965692564
+    - train_f1      0.973218141
+    - val_acc       0.833504956
+    - val_f1        0.799949341
+
+### gru_v7
+- only changed hyperparams
+    - batch size = 512 (from 256)
+    - epochs = 30 (from 10)
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.979729
+    - train_f1      0.984059
+    - val_acc       0.834331
+    - val_f1        0.799408
 
 ### Experiments TODO:
+- Check TensorBoard plots
+- Test smaller word embedding (100?)
 - Handle long sentences
 - Use excluded sents as additional validation metric
 - Attention mechanism
