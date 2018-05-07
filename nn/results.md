@@ -354,6 +354,11 @@
 - only changed hyperparams
     - batch size = 512 (from 256)
     - epochs = 30 (from 10)
+- averages (5 folds, AUG_TRAIN)
+    - train_acc     0.979729
+    - train_f1      0.984059
+    - val_acc       0.834331
+    - val_f1        0.799408
 
 ### Experiments TODO:
 - Check TensorBoard plots
