@@ -179,6 +179,15 @@ class Model:
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
+    def euclidean_sim(self):
+        def lambda_distance(self, sent1, sent2):
+            f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
+            result = k.layers.Lambda(f)([sent1,sent2])
+            return result
+
+        distance = self.lambda_distance(gru1_out, gru2_out)
+        out = k.layers.Dense(1, activation="sigmoid")(distance)
+
     def compute_accuracy(self, preds, labels):
         """Returns: accuracy, f1 score
         """

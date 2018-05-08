@@ -144,8 +144,5 @@ def augmented(filepath,*,method,fold_num):
         return train_data, val_data
 
 if __name__=="__main__":
-    train,val = augmented('../data/train_clean.csv',method='AUG_POOLED')
-    print ('train')
-    print(train.groupby('is_duplicate').count())
-    print('val')
-    print(val.groupby('is_duplicate').count())
+    train,val = augmented('../data/train_clean.csv',method='AUG_TRAIN',fold_num=0)
+    print(len(train))
