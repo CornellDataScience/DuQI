@@ -138,8 +138,8 @@ class Model:
         unknown_embedding = sum(self.glove.values())/len(self.glove.values())
         return unknown_embedding
 
-    def gru_similarity_model(self):
-        """GRU embedding -> Euclidean distance -> sigmoid activation
+    def mlp_sim_model(self):
+        """GRU embedding -> MLP -> softmax
         """
         input1 = k.layers.Input(shape=(c.SENT_LEN,))
         input2 = k.layers.Input(shape=(c.SENT_LEN,))
@@ -179,7 +179,9 @@ class Model:
         model = k.models.Model(inputs=[input1, input2], outputs=[out])
         return model
 
-    def euclidean_sim(self):
+    def eucl_sim_model(self):
+        """GRU embedding -> Euclidean distance -> sigmoid
+        """
         def lambda_distance(sent1, sent2):
             f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
             result = k.layers.Lambda(f)([sent1,sent2])
@@ -210,12 +212,12 @@ class Model:
        
         distance = lambda_distance(gru1_out, gru2_out)
         out = k.layers.Dense(1, activation="sigmoid")(distance)
-        lfunc = lambda x: np.array([0,1]) if x>=0.5 else np.array([1,0])
+        lfunc = lambda x: k.backend.switch(k.backend.greater(x,k.backend.constant(0.5)),
+                                           k.backend.constant(np.array([0,1])),
+                                           k.backend.constant(np.array([1,0])))
         out2 = k.layers.Lambda(lfunc)(out)
-            
         model = k.models.Model(inputs=[input1, input2], outputs=[out2])
         return model
-
 
     def compute_accuracy(self, preds, labels):
         """Returns: accuracy, f1 score
@@ -228,11 +230,11 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    MODEL_NAME = 'eucl_sim'
+    MODEL_NAME = 'gru'
     summary = np.zeros((c.NUM_FOLDS,4))
     for i in range(c.NUM_FOLDS):
         m = Model(fold_num=i)
-        m.train_model(model_name=MODEL_NAME+'_fold'+str(i)+'.h5',model_func=m.euclidean_sim)
+        m.train_model(model_name=MODEL_NAME+'_fold'+str(i)+'.h5',model_func=m.mlp_sim_model)
         summary[i] = m.evaluate_preds()
     pd_sum_cols = ['train_acc','train_f1','val_acc','val_f1']
     pd_summary = pd.DataFrame(data=summary,index=np.arange(c.NUM_FOLDS),columns=pd_sum_cols)

@@ -1,8 +1,8 @@
 # Constants
 # For use across files
 
-NUM_EPOCHS = 30
-BATCH_SIZE = 512
+NUM_EPOCHS = 10
+BATCH_SIZE = 256
 WORD_EMBED_SIZE = 300           # size of word embedding
 SENT_EMBED_SIZE = 300           # size of sentence embedding
 SENT_LEN = 50                   # fixed length of sentence
