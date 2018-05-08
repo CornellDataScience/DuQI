@@ -180,13 +180,42 @@ class Model:
         return model
 
     def euclidean_sim(self):
-        def lambda_distance(self, sent1, sent2):
+        def lambda_distance(sent1, sent2):
             f = lambda x: k.backend.sqrt(k.backend.sum(k.backend.square(x[0]-x[1]), axis=1, keepdims=True))
             result = k.layers.Lambda(f)([sent1,sent2])
             return result
 
-        distance = self.lambda_distance(gru1_out, gru2_out)
+        input1 = k.layers.Input(shape=(c.SENT_LEN,))
+        input2 = k.layers.Input(shape=(c.SENT_LEN,))
+
+        gru = k.models.Sequential()
+        num_words = len(self.tokenizer.word_index.items())
+        embed_matrix_init = lambda shape, dtype=None: self.embedding_matrix
+        # input is integer matrix of size (None, SENT_LEN).
+        gru.add(k.layers.Embedding(num_words,
+                                   c.WORD_EMBED_SIZE,
+                                   embeddings_initializer=embed_matrix_init,
+                                   input_length=c.SENT_LEN))
+        # shape = (None, SENT_LEN, WORD_EMBED_SIZE)
+        gru.add(k.layers.Masking(mask_value=0., input_shape=(c.SENT_LEN, c.WORD_EMBED_SIZE)))
+        gru.add(k.layers.GRU(c.SENT_EMBED_SIZE,
+                             dropout=0.2,
+                             activation='tanh', # relu explodes, maybe test grad clipping/elu?
+                             kernel_regularizer=k.regularizers.l2(0.0001),
+                             recurrent_regularizer=k.regularizers.l2(0.0001),
+                             bias_regularizer=k.regularizers.l2(0.0001),
+                             implementation=2)) # better GPU performance
+        gru1_out = gru(input1)
+        gru2_out = gru(input2)
+       
+        distance = lambda_distance(gru1_out, gru2_out)
         out = k.layers.Dense(1, activation="sigmoid")(distance)
+        lfunc = lambda x: np.array([0,1]) if x>=0.5 else np.array([1,0])
+        out2 = k.layers.Lambda(lfunc)(out)
+            
+        model = k.models.Model(inputs=[input1, input2], outputs=[out2])
+        return model
+
 
     def compute_accuracy(self, preds, labels):
         """Returns: accuracy, f1 score
@@ -199,11 +228,11 @@ class Model:
         return accuracy, f1
 
 if __name__=="__main__":
-    MODEL_NAME = 'gru_v7_augtrain'
+    MODEL_NAME = 'eucl_sim'
     summary = np.zeros((c.NUM_FOLDS,4))
     for i in range(c.NUM_FOLDS):
         m = Model(fold_num=i)
-        m.train_model(model_name=MODEL_NAME+'_fold'+str(i)+'.h5',model_func=m.gru_similarity_model)
+        m.train_model(model_name=MODEL_NAME+'_fold'+str(i)+'.h5',model_func=m.euclidean_sim)
         summary[i] = m.evaluate_preds()
     pd_sum_cols = ['train_acc','train_f1','val_acc','val_f1']
     pd_summary = pd.DataFrame(data=summary,index=np.arange(c.NUM_FOLDS),columns=pd_sum_cols)
