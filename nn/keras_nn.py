@@ -66,6 +66,7 @@ class Model:
         """Creates the GloVe dictionary from pretrained GloVe embeddings.
         """
         print('Creating GloVe dict...')
+        
         embeddings_dict = {}
         with io.open(c.GLOVE_FILEPATH,'r',encoding='utf8') as f:
             for line in f:
